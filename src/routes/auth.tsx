@@ -22,8 +22,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const showSignup = typeof window !== "undefined" &&
-    (window.location.search.includes("create-admin") || window.location.hash.includes("create-admin"));
+
 
 
   useEffect(() => {
