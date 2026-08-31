@@ -63,10 +63,10 @@ function ImportPage() {
         const cityKey = keys.find((k) => /city|town|location/i.test(k));
         const dateKey = keys.find((k) => /date/i.test(k));
         return {
-          name: nameKey ? String(r[nameKey]).trim() : "",
+          name: nameKey ? toTitleCase(String(r[nameKey])) : "",
           phone: phoneKey ? String(r[phoneKey]).trim() : "",
           email: emailKey ? String(r[emailKey]).trim() : "",
-          city: cityKey ? String(r[cityKey]).trim() : "",
+          city: cityKey ? toTitleCase(String(r[cityKey])) : "",
           received_date: dateKey ? toISODate(r[dateKey]) : "",
         };
       });
