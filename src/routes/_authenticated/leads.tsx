@@ -180,12 +180,15 @@ function LeadsPage() {
                           />
                         </td>
                       )}
+                      <td className="p-3 text-muted-foreground whitespace-nowrap">{formatDate(l.lead_received_date)}</td>
                       <td className="p-3">
                         <Link to="/leads/$id" params={{id:String(l.id)}} className="font-medium hover:underline">
                           {l.name || "Unnamed"}
                         </Link>
                       </td>
                       <td className="p-3 text-muted-foreground">{l.phone_number || "—"}</td>
+                      <td className="p-3 text-muted-foreground">{l.email || "—"}</td>
+                      <td className="p-3 text-muted-foreground">{l.city || "—"}</td>
                       <td className="p-3">{l.lead_statuses?.name && <Badge variant="outline" className={statusColor(l.lead_statuses.name)}>{l.lead_statuses.name}</Badge>}</td>
                       <td className="p-3">{l.lead_temperatures?.name && <Badge variant="outline" className={tempColor(l.lead_temperatures.name)}>{l.lead_temperatures.name}</Badge>}</td>
                       <td className="p-3"><Badge variant="outline" className={fu.cls}>{fu.label}</Badge> <span className="text-xs text-muted-foreground">{formatDate(l.follow_up_date)}</span></td>
