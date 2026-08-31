@@ -106,23 +106,21 @@ function AuthPage() {
                 <Button className="w-full" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sign in
                 </Button>
+              </form>
+            </TabsContent>
+            <TabsContent value="signup">
+              <form onSubmit={signUp} className="space-y-4 mt-4">
+                <div><Label>Full name</Label><Input required value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
+                <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+                <div><Label>Password</Label><Input type="password" minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+                <Button className="w-full" disabled={loading}>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Create account
+                </Button>
                 <p className="text-xs text-muted-foreground text-center">
-                  The first account created becomes admin.
+                  The very first account becomes admin. Later sign-ups join as telecallers and need admin approval.
                 </p>
               </form>
             </TabsContent>
-            {showSignup && (
-              <TabsContent value="signup">
-                <form onSubmit={signUp} className="space-y-4 mt-4">
-                  <div><Label>Full name</Label><Input required value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
-                  <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-                  <div><Label>Password</Label><Input type="password" minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
-                  <Button className="w-full" disabled={loading}>
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Create account
-                  </Button>
-                </form>
-              </TabsContent>
-            )}
           </Tabs>
         </Card>
       </div>
