@@ -11,6 +11,9 @@ type Lead = {
   id: number;
   name: string | null;
   phone_number: string | null;
+  email?: string | null;
+  city?: string | null;
+  lead_received_date?: string | null;
   follow_up_date: string | null;
   follow_up_time: string | null;
   status_name?: string | null;
