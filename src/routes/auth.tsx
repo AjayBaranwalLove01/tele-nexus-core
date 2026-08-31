@@ -22,8 +22,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const showSignup = typeof window !== "undefined" &&
-    (window.location.search.includes("create-admin") || window.location.hash.includes("create-admin"));
+
 
 
   useEffect(() => {
@@ -48,13 +47,13 @@ function AuthPage() {
     const { error } = await supabase.auth.signUp({
       email, password,
       options: {
-        data: { full_name: fullName, role: showSignup ? "admin" : "telecaller" },
+        data: { full_name: fullName },
         emailRedirectTo: `${window.location.origin}/dashboard`,
       },
     });
     setLoading(false);
     if (error) return toast.error(error.message);
-    toast.success("Account created. You can sign in now.");
+    toast.success("Account created. An admin will approve your access.");
   };
 
   return (
@@ -96,9 +95,9 @@ function AuthPage() {
             <span className="text-lg font-semibold font-display">Oxo Lead Manager</span>
           </div>
           <Tabs defaultValue="signin">
-            <TabsList className={`grid ${showSignup ? "grid-cols-2" : "grid-cols-1"} w-full`}>
+            <TabsList className="grid grid-cols-2 w-full">
               <TabsTrigger value="signin">Sign in</TabsTrigger>
-              {showSignup && <TabsTrigger value="signup">Create account</TabsTrigger>}
+              <TabsTrigger value="signup">Create account</TabsTrigger>
             </TabsList>
             <TabsContent value="signin">
               <form onSubmit={signIn} className="space-y-4 mt-4">
@@ -107,23 +106,21 @@ function AuthPage() {
                 <Button className="w-full" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sign in
                 </Button>
+              </form>
+            </TabsContent>
+            <TabsContent value="signup">
+              <form onSubmit={signUp} className="space-y-4 mt-4">
+                <div><Label>Full name</Label><Input required value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
+                <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+                <div><Label>Password</Label><Input type="password" minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+                <Button className="w-full" disabled={loading}>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Create account
+                </Button>
                 <p className="text-xs text-muted-foreground text-center">
-                  The first account created becomes admin.
+                  The very first account becomes admin. Later sign-ups join as telecallers and need admin approval.
                 </p>
               </form>
             </TabsContent>
-            {showSignup && (
-              <TabsContent value="signup">
-                <form onSubmit={signUp} className="space-y-4 mt-4">
-                  <div><Label>Full name</Label><Input required value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
-                  <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-                  <div><Label>Password</Label><Input type="password" minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
-                  <Button className="w-full" disabled={loading}>
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Create account
-                  </Button>
-                </form>
-              </TabsContent>
-            )}
           </Tabs>
         </Card>
       </div>
