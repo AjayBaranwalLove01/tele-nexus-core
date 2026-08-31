@@ -42,24 +42,35 @@ export function AddLeadDialog({ trigger }: { trigger?: React.ReactNode }) {
   });
 
   const reset = () => {
-    setName(""); setPhone(""); setStatusId("default"); setTempId("none"); setAssignee("none"); setFollowUp("");
+    setName(""); setPhone(""); setEmail(""); setCity("");
+    setReceivedDate(new Date().toISOString().slice(0, 10));
+    setStatusId("default"); setTempId("none"); setAssignee("none"); setFollowUp("");
   };
 
   const submit = async () => {
-    if (!name.trim() && !phone.trim()) {
-      toast.error("Enter at least a name or a phone number");
+    if (!name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    if (!phone.trim()) {
+      toast.error("Phone number is required");
+      return;
+    }
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      toast.error("Enter a valid email address");
       return;
     }
     setSaving(true);
     try {
-      if (phone.trim()) {
-        const { data: dupe } = await supabase.from("leads").select("id").eq("phone_number", phone.trim()).maybeSingle();
-        if (dupe) throw new Error("A lead with this phone number already exists");
-      }
+      const { data: dupe } = await supabase.from("leads").select("id").eq("phone_number", phone.trim()).maybeSingle();
+      if (dupe) throw new Error("A lead with this phone number already exists");
       const defaultStatus = statuses?.find((s: any) => s.is_default)?.id ?? null;
       const { error } = await supabase.from("leads").insert({
-        name: name.trim() || null,
-        phone_number: phone.trim() || null,
+        name: name.trim(),
+        phone_number: phone.trim(),
+        email: email.trim() || null,
+        city: city.trim() || null,
+        lead_received_date: receivedDate || new Date().toISOString().slice(0, 10),
         status_id: statusId === "default" ? defaultStatus : statusId,
         temperature_id: tempId === "none" ? null : tempId,
         assigned_to: assignee === "none" ? null : assignee,
