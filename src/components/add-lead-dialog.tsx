@@ -107,12 +107,26 @@ export function AddLeadDialog({ trigger }: { trigger?: React.ReactNode }) {
 
         <div className="grid gap-3">
           <div className="grid gap-1.5">
-            <Label htmlFor="lead-name">Name</Label>
-            <Input id="lead-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
+            <Label htmlFor="lead-received">Lead received date</Label>
+            <Input id="lead-received" type="date" value={receivedDate} onChange={(e) => setReceivedDate(e.target.value)} />
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="lead-phone">Phone number</Label>
-            <Input id="lead-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="9876543210" inputMode="tel" />
+            <Label htmlFor="lead-name">Name *</Label>
+            <Input id="lead-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" maxLength={120} required />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="lead-phone">Phone number *</Label>
+            <Input id="lead-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="9876543210" inputMode="tel" maxLength={20} required />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-1.5">
+              <Label htmlFor="lead-email">Email</Label>
+              <Input id="lead-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" maxLength={255} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="lead-city">City</Label>
+              <Input id="lead-city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Mumbai" maxLength={100} />
+            </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="grid gap-1.5">
