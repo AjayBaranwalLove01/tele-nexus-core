@@ -18,6 +18,9 @@ export function AddLeadDialog({ trigger }: { trigger?: React.ReactNode }) {
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [city, setCity] = useState("");
+  const [receivedDate, setReceivedDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [statusId, setStatusId] = useState("default");
   const [tempId, setTempId] = useState("none");
   const [assignee, setAssignee] = useState("none");
