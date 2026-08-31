@@ -95,9 +95,9 @@ function AuthPage() {
             <span className="text-lg font-semibold font-display">Oxo Lead Manager</span>
           </div>
           <Tabs defaultValue="signin">
-            <TabsList className={`grid ${showSignup ? "grid-cols-2" : "grid-cols-1"} w-full`}>
+            <TabsList className="grid grid-cols-2 w-full">
               <TabsTrigger value="signin">Sign in</TabsTrigger>
-              {showSignup && <TabsTrigger value="signup">Create account</TabsTrigger>}
+              <TabsTrigger value="signup">Create account</TabsTrigger>
             </TabsList>
             <TabsContent value="signin">
               <form onSubmit={signIn} className="space-y-4 mt-4">
