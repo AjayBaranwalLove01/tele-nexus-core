@@ -104,7 +104,7 @@ function ImportPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Import Leads</h1>
-          <p className="text-sm text-muted-foreground">Upload Excel (.xlsx) or CSV with Name and Phone Number columns. Both fields are optional.</p>
+          <p className="text-sm text-muted-foreground">Upload Excel (.xlsx) or CSV with Lead Received Date, Name, Phone Number, Email and City columns. Name and Phone Number are mandatory — rows missing either are skipped.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={downloadLeadTemplate}>
