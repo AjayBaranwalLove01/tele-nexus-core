@@ -24,7 +24,7 @@ function ImportPage() {
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
   const [running, setRunning] = useState(false);
-  const [report, setReport] = useState<{ total: number; inserted: number; duplicates: number } | null>(null);
+  const [report, setReport] = useState<{ total: number; inserted: number; duplicates: number; failed: number } | null>(null);
 
   const { data: jobs } = useQuery({
     queryKey: ["import-jobs"],
