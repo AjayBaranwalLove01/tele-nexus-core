@@ -249,12 +249,15 @@ export type Database = {
         Row: {
           assigned_at: string | null
           assigned_to: string | null
+          city: string | null
           completed_at: string | null
           created_at: string
+          email: string | null
           follow_up_date: string | null
           follow_up_time: string | null
           id: number
           last_remark: string | null
+          lead_received_date: string
           name: string | null
           phone_number: string | null
           remarks_count: number
@@ -265,12 +268,15 @@ export type Database = {
         Insert: {
           assigned_at?: string | null
           assigned_to?: string | null
+          city?: string | null
           completed_at?: string | null
           created_at?: string
+          email?: string | null
           follow_up_date?: string | null
           follow_up_time?: string | null
           id?: number
           last_remark?: string | null
+          lead_received_date?: string
           name?: string | null
           phone_number?: string | null
           remarks_count?: number
@@ -281,12 +287,15 @@ export type Database = {
         Update: {
           assigned_at?: string | null
           assigned_to?: string | null
+          city?: string | null
           completed_at?: string | null
           created_at?: string
+          email?: string | null
           follow_up_date?: string | null
           follow_up_time?: string | null
           id?: number
           last_remark?: string | null
+          lead_received_date?: string
           name?: string | null
           phone_number?: string | null
           remarks_count?: number

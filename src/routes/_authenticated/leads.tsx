@@ -40,7 +40,7 @@ function LeadsPage() {
     queryKey: ["leads-list", search, statusId, tempId, scope, me?.profile?.id],
     queryFn: async () => {
       let q = supabase.from("leads")
-        .select("id,name,phone_number,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)")
+        .select("id,name,phone_number,email,city,lead_received_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)")
         .order("updated_at", { ascending: false })
         .limit(200);
       if (statusId !== "all") q = q.eq("status_id", statusId);
@@ -151,8 +151,11 @@ function LeadsPage() {
                       />
                     </th>
                   )}
+                  <th className="p-3">Received</th>
                   <th className="p-3">Name</th>
                   <th className="p-3">Phone</th>
+                  <th className="p-3">Email</th>
+                  <th className="p-3">City</th>
                   <th className="p-3">Status</th>
                   <th className="p-3">Temp</th>
                   <th className="p-3">Follow-up</th>
@@ -177,12 +180,15 @@ function LeadsPage() {
                           />
                         </td>
                       )}
+                      <td className="p-3 text-muted-foreground whitespace-nowrap">{formatDate(l.lead_received_date)}</td>
                       <td className="p-3">
                         <Link to="/leads/$id" params={{id:String(l.id)}} className="font-medium hover:underline">
                           {l.name || "Unnamed"}
                         </Link>
                       </td>
                       <td className="p-3 text-muted-foreground">{l.phone_number || "—"}</td>
+                      <td className="p-3 text-muted-foreground">{l.email || "—"}</td>
+                      <td className="p-3 text-muted-foreground">{l.city || "—"}</td>
                       <td className="p-3">{l.lead_statuses?.name && <Badge variant="outline" className={statusColor(l.lead_statuses.name)}>{l.lead_statuses.name}</Badge>}</td>
                       <td className="p-3">{l.lead_temperatures?.name && <Badge variant="outline" className={tempColor(l.lead_temperatures.name)}>{l.lead_temperatures.name}</Badge>}</td>
                       <td className="p-3"><Badge variant="outline" className={fu.cls}>{fu.label}</Badge> <span className="text-xs text-muted-foreground">{formatDate(l.follow_up_date)}</span></td>
@@ -218,7 +224,7 @@ function LeadsPage() {
                     </tr>
                   );
                 })}
-                {rows.length === 0 && <tr><td colSpan={me?.isAdmin ? 8 : 7} className="p-10 text-center text-muted-foreground">No leads found.</td></tr>}
+                {rows.length === 0 && <tr><td colSpan={me?.isAdmin ? 11 : 10} className="p-10 text-center text-muted-foreground">No leads found.</td></tr>}
               </tbody>
             </table>
           </div>

@@ -102,6 +102,11 @@ function LeadDetail() {
           <div>
             <h1 className="text-2xl font-bold">{lead.name || "Unnamed lead"}</h1>
             <div className="text-muted-foreground mt-1">{lead.phone_number || "No phone"}</div>
+            <div className="text-sm text-muted-foreground mt-1 flex flex-wrap gap-x-4 gap-y-1">
+              <span>Email: {lead.email || "—"}</span>
+              <span>City: {lead.city || "—"}</span>
+              <span>Received: {formatDate(lead.lead_received_date)}</span>
+            </div>
             <div className="flex gap-2 mt-2 flex-wrap">
               {lead.lead_statuses?.name && <Badge variant="outline" className={statusColor(lead.lead_statuses.name)}>{lead.lead_statuses.name}</Badge>}
               {lead.lead_temperatures?.name && <Badge variant="outline" className={tempColor(lead.lead_temperatures.name)}>{lead.lead_temperatures.name}</Badge>}

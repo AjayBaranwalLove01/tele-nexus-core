@@ -24,7 +24,7 @@ function ImportPage() {
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
   const [running, setRunning] = useState(false);
-  const [report, setReport] = useState<{ total: number; inserted: number; duplicates: number } | null>(null);
+  const [report, setReport] = useState<{ total: number; inserted: number; duplicates: number; failed: number } | null>(null);
 
   const { data: jobs } = useQuery({
     queryKey: ["import-jobs"],
@@ -43,13 +43,31 @@ function ImportPage() {
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json<Record<string, any>>(sheet, { defval: "" });
 
+      const toISODate = (v: any) => {
+        if (v === null || v === undefined || String(v).trim() === "") return "";
+        if (v instanceof Date) return v.toISOString().slice(0, 10);
+        if (typeof v === "number") {
+          const d = XLSX.SSF.parse_date_code(v);
+          if (d) return `${d.y}-${String(d.m).padStart(2, "0")}-${String(d.d).padStart(2, "0")}`;
+        }
+        const s = String(v).trim();
+        const parsed = new Date(s);
+        return Number.isNaN(parsed.getTime()) ? "" : parsed.toISOString().slice(0, 10);
+      };
+
       const normalized = rows.map((r) => {
         const keys = Object.keys(r);
         const nameKey = keys.find((k) => /name/i.test(k));
-        const phoneKey = keys.find((k) => /phone|mobile|number/i.test(k));
+        const phoneKey = keys.find((k) => /phone|mobile/i.test(k)) ?? keys.find((k) => /number/i.test(k) && !/date/i.test(k));
+        const emailKey = keys.find((k) => /e-?mail/i.test(k));
+        const cityKey = keys.find((k) => /city|town|location/i.test(k));
+        const dateKey = keys.find((k) => /date/i.test(k));
         return {
           name: nameKey ? String(r[nameKey]).trim() : "",
           phone: phoneKey ? String(r[phoneKey]).trim() : "",
+          email: emailKey ? String(r[emailKey]).trim() : "",
+          city: cityKey ? String(r[cityKey]).trim() : "",
+          received_date: dateKey ? toISODate(r[dateKey]) : "",
         };
       });
 
@@ -59,18 +77,18 @@ function ImportPage() {
       }).select().single();
       if (jobErr) throw jobErr;
 
-      let inserted = 0, dups = 0, total = 0;
+      let inserted = 0, dups = 0, total = 0, failed = 0;
       for (let i = 0; i < normalized.length; i += CHUNK) {
         const slice = normalized.slice(i, i + CHUNK);
         const { data, error } = await supabase.rpc("bulk_insert_leads", { _rows: slice, _job_id: job.id });
         if (error) throw error;
         const res = data as any;
-        total += res.total; inserted += res.inserted; dups += res.duplicates;
+        total += res.total; inserted += res.inserted; dups += res.duplicates; failed += res.failed ?? 0;
         setProgress(Math.round(((i + slice.length) / normalized.length) * 100));
       }
 
       await supabase.from("import_jobs").update({ status: "completed", finished_at: new Date().toISOString() }).eq("id", job.id);
-      setReport({ total, inserted, duplicates: dups });
+      setReport({ total, inserted, duplicates: dups, failed });
       toast.success(`Imported ${inserted.toLocaleString()} leads`);
       qc.invalidateQueries({ queryKey: ["import-jobs"] });
       qc.invalidateQueries({ queryKey: ["admin-dashboard"] });
@@ -86,7 +104,7 @@ function ImportPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Import Leads</h1>
-          <p className="text-sm text-muted-foreground">Upload Excel (.xlsx) or CSV with Name and Phone Number columns. Both fields are optional.</p>
+          <p className="text-sm text-muted-foreground">Upload Excel (.xlsx) or CSV with Lead Received Date, Name, Phone Number, Email and City columns. Name and Phone Number are mandatory — rows missing either are skipped.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={downloadLeadTemplate}>
@@ -108,10 +126,11 @@ function ImportPage() {
           <Upload className="h-4 w-4"/> {running ? `Importing... ${progress}%` : "Start Import"}
         </Button>
         {report && (
-          <div className="grid grid-cols-3 gap-3 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
             <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Total</div><div className="text-xl font-semibold">{report.total.toLocaleString()}</div></div>
             <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Inserted</div><div className="text-xl font-semibold text-success">{report.inserted.toLocaleString()}</div></div>
             <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Duplicates</div><div className="text-xl font-semibold text-warning">{report.duplicates.toLocaleString()}</div></div>
+            <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Skipped (missing name/phone)</div><div className="text-xl font-semibold text-destructive">{report.failed.toLocaleString()}</div></div>
           </div>
         )}
       </Card>
