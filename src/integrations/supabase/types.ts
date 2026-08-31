@@ -520,6 +520,7 @@ export type Database = {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_approved: { Args: { _user_id: string }; Returns: boolean }
       recall_unused_leads: { Args: { _telecaller?: string }; Returns: number }
+      title_case: { Args: { _txt: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "telecaller"

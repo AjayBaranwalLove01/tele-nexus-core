@@ -10,6 +10,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useStatuses, useTemperatures } from "@/hooks/use-meta";
 import { UserPlus } from "lucide-react";
+import { toTitleCase } from "@/lib/lead-utils";
 import { toast } from "sonner";
 
 export function AddLeadDialog({ trigger }: { trigger?: React.ReactNode }) {
@@ -66,10 +67,10 @@ export function AddLeadDialog({ trigger }: { trigger?: React.ReactNode }) {
       if (dupe) throw new Error("A lead with this phone number already exists");
       const defaultStatus = statuses?.find((s: any) => s.is_default)?.id ?? null;
       const { error } = await supabase.from("leads").insert({
-        name: name.trim(),
+        name: toTitleCase(name),
         phone_number: phone.trim(),
         email: email.trim() || null,
-        city: city.trim() || null,
+        city: toTitleCase(city) || null,
         lead_received_date: receivedDate || new Date().toISOString().slice(0, 10),
         status_id: statusId === "default" ? defaultStatus : statusId,
         temperature_id: tempId === "none" ? null : tempId,
