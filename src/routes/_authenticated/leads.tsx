@@ -224,7 +224,7 @@ function LeadsPage() {
                     </tr>
                   );
                 })}
-                {rows.length === 0 && <tr><td colSpan={me?.isAdmin ? 8 : 7} className="p-10 text-center text-muted-foreground">No leads found.</td></tr>}
+                {rows.length === 0 && <tr><td colSpan={me?.isAdmin ? 11 : 10} className="p-10 text-center text-muted-foreground">No leads found.</td></tr>}
               </tbody>
             </table>
           </div>
