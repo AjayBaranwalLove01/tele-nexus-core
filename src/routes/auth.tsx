@@ -41,6 +41,21 @@ function AuthPage() {
     navigate({ to: "/dashboard" });
   };
 
+  const [showForgot, setShowForgot] = useState(false);
+
+  const sendReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return toast.error("Enter your email first");
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("Password reset email sent. Check your inbox.");
+    setShowForgot(false);
+  };
+
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
