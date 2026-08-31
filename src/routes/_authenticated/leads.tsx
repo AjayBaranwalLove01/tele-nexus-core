@@ -151,8 +151,11 @@ function LeadsPage() {
                       />
                     </th>
                   )}
+                  <th className="p-3">Received</th>
                   <th className="p-3">Name</th>
                   <th className="p-3">Phone</th>
+                  <th className="p-3">Email</th>
+                  <th className="p-3">City</th>
                   <th className="p-3">Status</th>
                   <th className="p-3">Temp</th>
                   <th className="p-3">Follow-up</th>
