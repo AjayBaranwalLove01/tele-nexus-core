@@ -10,6 +10,7 @@ import { Upload, FileSpreadsheet, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { downloadLeadTemplate } from "@/lib/lead-template";
+import { toTitleCase } from "@/lib/lead-utils";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
 
 export const Route = createFileRoute("/_authenticated/import")({

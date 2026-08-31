@@ -10,6 +10,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useStatuses, useTemperatures } from "@/hooks/use-meta";
 import { UserPlus } from "lucide-react";
+import { toTitleCase } from "@/lib/lead-utils";
 import { toast } from "sonner";
 
 export function AddLeadDialog({ trigger }: { trigger?: React.ReactNode }) {
