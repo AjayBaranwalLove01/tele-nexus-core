@@ -47,13 +47,13 @@ function AuthPage() {
     const { error } = await supabase.auth.signUp({
       email, password,
       options: {
-        data: { full_name: fullName, role: showSignup ? "admin" : "telecaller" },
+        data: { full_name: fullName },
         emailRedirectTo: `${window.location.origin}/dashboard`,
       },
     });
     setLoading(false);
     if (error) return toast.error(error.message);
-    toast.success("Account created. You can sign in now.");
+    toast.success("Account created. An admin will approve your access.");
   };
 
   return (
