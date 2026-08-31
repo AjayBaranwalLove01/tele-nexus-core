@@ -77,7 +77,7 @@ function AppSidebar() {
           <div className="h-8 w-8 rounded-md bg-sidebar-primary grid place-items-center shrink-0">
             <Phone className="h-4 w-4 text-sidebar-primary-foreground" />
           </div>
-          {!collapsed && <span className="font-semibold tracking-tight">LeadFlow</span>}
+          {!collapsed && <span className="font-semibold tracking-tight font-display">Oxo</span>}
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -119,7 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
             <SidebarTrigger className="hidden lg:flex mr-2" />
-            <div className="text-sm font-medium text-muted-foreground">Enterprise Telecalling CRM</div>
+            <div className="text-sm font-medium text-muted-foreground">Lead Management & Telecalling</div>
           </header>
           <main className="flex-1 p-4 lg:p-6 min-w-0 overflow-x-hidden">{children}</main>
         </div>
