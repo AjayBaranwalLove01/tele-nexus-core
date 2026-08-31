@@ -86,15 +86,8 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const isProtectedPath =
-    ["/dashboard", "/followups", "/import", "/settings", "/telecallers"].includes(pathname) ||
-    pathname === "/leads" ||
-    pathname.startsWith("/leads/");
 
   useEffect(() => {
-    setMounted(true);
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
@@ -105,35 +98,8 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {isProtectedPath && !mounted ? <ProtectedRouteFallback /> : <Outlet />}
+      <Outlet />
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
-  );
-}
-
-function ProtectedRouteFallback() {
-  return (
-    <div className="flex min-h-screen bg-background">
-      <aside className="hidden w-64 border-r bg-sidebar p-4 text-sidebar-foreground md:block">
-        <div className="mb-8 flex items-center gap-2">
-          <div className="h-8 w-8 rounded-md bg-sidebar-primary" />
-          <div className="h-4 w-24 rounded bg-sidebar-accent" />
-        </div>
-        <div className="space-y-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="h-9 rounded-md bg-sidebar-accent/70" />
-          ))}
-        </div>
-      </aside>
-      <main className="flex flex-1 flex-col">
-        <header className="h-14 border-b bg-card" />
-        <div className="flex flex-1 items-center justify-center p-6">
-          <div className="text-center">
-            <div className="mx-auto mb-4 h-10 w-10 rounded-md bg-primary" />
-            <p className="text-sm font-medium text-muted-foreground">Loading workspace…</p>
-          </div>
-        </div>
-      </main>
-    </div>
   );
 }
