@@ -23,7 +23,7 @@ import { useSettings } from "@/hooks/use-meta";
 import { createTelecaller, deleteTelecaller } from "@/lib/telecallers.functions";
 
 export const Route = createFileRoute("/_authenticated/telecallers")({
-  head: () => ({ meta: [{ title: "Telecallers — LeadFlow CRM" }] }),
+  head: () => ({ meta: [{ title: "Telecallers — Oxo Lead Manager" }] }),
   component: TelecallersPage,
 });
 

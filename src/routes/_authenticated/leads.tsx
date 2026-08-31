@@ -23,7 +23,7 @@ import { LeadQuickUpdate } from "@/components/lead-quick-update";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
 
 export const Route = createFileRoute("/_authenticated/leads")({
-  head: () => ({ meta: [{ title: "Leads — LeadFlow CRM" }] }),
+  head: () => ({ meta: [{ title: "Leads — Oxo Lead Manager" }] }),
   component: LeadsPage,
 });
 

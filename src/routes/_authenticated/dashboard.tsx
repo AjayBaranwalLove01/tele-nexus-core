@@ -7,7 +7,7 @@ import { TelecallerDashboard } from "@/components/telecaller-dashboard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — LeadFlow CRM" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — Oxo Lead Manager" }] }),
   component: DashboardPage,
 });
 
