@@ -33,3 +33,6 @@ export const followupBadge = (date?: string | null) => {
 
 export const formatDate = (d?: string | null) =>
   d ? new Date(d).toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" }) : "—";
+
+export const toTitleCase = (s?: string | null): string =>
+  (s ?? "").trim().toLowerCase().replace(/(^|[\s\-'’.,()/])([a-zà-öø-ÿ])/g, (_m, sep, ch) => sep + ch.toUpperCase());
