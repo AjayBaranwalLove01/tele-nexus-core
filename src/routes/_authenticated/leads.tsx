@@ -40,7 +40,7 @@ function LeadsPage() {
     queryKey: ["leads-list", search, statusId, tempId, scope, me?.profile?.id],
     queryFn: async () => {
       let q = supabase.from("leads")
-        .select("id,name,phone_number,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)")
+        .select("id,name,phone_number,email,city,lead_received_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)")
         .order("updated_at", { ascending: false })
         .limit(200);
       if (statusId !== "all") q = q.eq("status_id", statusId);
