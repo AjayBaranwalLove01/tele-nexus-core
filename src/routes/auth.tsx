@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Sign in — LeadFlow CRM" }] }),
+  head: () => ({ meta: [{ title: "Sign in — Oxo Lead Manager" }] }),
   component: AuthPage,
 });
 
@@ -64,12 +64,12 @@ function AuthPage() {
           <div className="h-10 w-10 rounded-lg bg-sidebar-primary grid place-items-center">
             <Phone className="h-5 w-5 text-sidebar-primary-foreground" />
           </div>
-          <span className="text-xl font-semibold tracking-tight">LeadFlow CRM</span>
+          <span className="text-xl font-semibold tracking-tight font-display">Oxo Lead Manager</span>
         </div>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h1 className="text-4xl font-bold leading-tight">Enterprise telecalling, engineered for scale.</h1>
+          <h1 className="text-4xl font-bold leading-tight font-display">Lead management, engineered for scale.</h1>
           <p className="mt-4 text-base text-sidebar-foreground/70 max-w-md">
-            Import 500K+ leads, distribute automatically, manage follow-ups, and call from any device.
+            Import high-volume lead lists, distribute automatically, manage follow-ups, and call from any device.
           </p>
           <div className="mt-10 grid grid-cols-3 gap-4 text-sm">
             {[
@@ -84,7 +84,7 @@ function AuthPage() {
             ))}
           </div>
         </motion.div>
-        <div className="text-xs text-sidebar-foreground/50">© LeadFlow CRM</div>
+        <div className="text-xs text-sidebar-foreground/50">© Oxo Lead Manager</div>
       </div>
 
       <div className="flex items-center justify-center p-6 lg:p-12">
@@ -93,7 +93,7 @@ function AuthPage() {
             <div className="h-9 w-9 rounded-lg bg-primary grid place-items-center">
               <Phone className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="text-lg font-semibold">LeadFlow CRM</span>
+            <span className="text-lg font-semibold font-display">Oxo Lead Manager</span>
           </div>
           <Tabs defaultValue="signin">
             <TabsList className={`grid ${showSignup ? "grid-cols-2" : "grid-cols-1"} w-full`}>

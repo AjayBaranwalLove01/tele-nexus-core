@@ -14,9 +14,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/users")({
   head: () => ({
     meta: [
-      { title: "User Access — LeadFlow CRM" },
-      { name: "description", content: "Approve new accounts and assign admin or telecaller roles in LeadFlow CRM." },
-      { property: "og:title", content: "User Access — LeadFlow CRM" },
+      { title: "User Access — Oxo Lead Manager" },
+      { name: "description", content: "Approve new accounts and assign admin or telecaller roles in Oxo Lead Manager." },
+      { property: "og:title", content: "User Access — Oxo Lead Manager" },
       { property: "og:description", content: "Approve new accounts and assign roles for your calling team." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

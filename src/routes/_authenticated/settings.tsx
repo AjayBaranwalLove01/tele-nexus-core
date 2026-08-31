@@ -11,7 +11,7 @@ import { useSettings, useStatuses, useTemperatures } from "@/hooks/use-meta";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/settings")({
-  head: () => ({ meta: [{ title: "Settings — LeadFlow CRM" }] }),
+  head: () => ({ meta: [{ title: "Settings — Oxo Lead Manager" }] }),
   component: SettingsPage,
 });
 

@@ -13,7 +13,7 @@ import { downloadLeadTemplate } from "@/lib/lead-template";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
 
 export const Route = createFileRoute("/_authenticated/import")({
-  head: () => ({ meta: [{ title: "Import Leads — LeadFlow CRM" }] }),
+  head: () => ({ meta: [{ title: "Import Leads — Oxo Lead Manager" }] }),
   component: ImportPage,
 });
 

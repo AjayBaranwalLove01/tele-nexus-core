@@ -4,11 +4,10 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -55,18 +54,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "LeadFlow CRM — Enterprise Telecalling" },
-      { name: "description", content: "Enterprise lead management & telecalling CRM with automated lead distribution, follow-ups, and high-volume imports." },
-      { property: "og:title", content: "LeadFlow CRM — Enterprise Telecalling" },
-      { name: "twitter:title", content: "LeadFlow CRM — Enterprise Telecalling" },
-      { property: "og:description", content: "Enterprise lead management & telecalling CRM with automated lead distribution, follow-ups, and high-volume imports." },
-      { name: "twitter:description", content: "Enterprise lead management & telecalling CRM with automated lead distribution, follow-ups, and high-volume imports." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fb0e86d5-cecf-4f75-8083-7d9085fc8afa/id-preview-124e79a5--4ea131b8-b6ae-4454-a74b-e22a9e655962.lovable.app-1780817225704.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fb0e86d5-cecf-4f75-8083-7d9085fc8afa/id-preview-124e79a5--4ea131b8-b6ae-4454-a74b-e22a9e655962.lovable.app-1780817225704.png" },
+      { title: "Oxo Lead Manager — Lead Management & Telecalling" },
+      { name: "description", content: "Oxo Lead Manager is a lead management & telecalling CRM with automated lead distribution, follow-ups, and high-volume imports." },
+      { property: "og:title", content: "Oxo Lead Manager — Lead Management & Telecalling" },
+      { name: "twitter:title", content: "Oxo Lead Manager — Lead Management & Telecalling" },
+      { property: "og:description", content: "Oxo Lead Manager is a lead management & telecalling CRM with automated lead distribution, follow-ups, and high-volume imports." },
+      { name: "twitter:description", content: "Oxo Lead Manager is a lead management & telecalling CRM with automated lead distribution, follow-ups, and high-volume imports." },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@300..700&display=swap" },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,

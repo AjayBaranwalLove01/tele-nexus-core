@@ -7,9 +7,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const Route = createFileRoute("/_authenticated/activity")({
   head: () => ({
     meta: [
-      { title: "Activity Monitoring — LeadFlow CRM" },
+      { title: "Activity Monitoring — Oxo Lead Manager" },
       { name: "description", content: "Track employee login sessions, active vs idle time, module usage and audit history." },
-      { property: "og:title", content: "Activity Monitoring — LeadFlow CRM" },
+      { property: "og:title", content: "Activity Monitoring — Oxo Lead Manager" },
       { property: "og:description", content: "Track employee login sessions, active vs idle time, module usage and audit history." },
     ],
   }),

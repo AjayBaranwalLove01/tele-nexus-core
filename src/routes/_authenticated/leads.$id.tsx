@@ -16,7 +16,7 @@ import { statusColor, tempColor, formatDate } from "@/lib/lead-utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/leads/$id")({
-  head: () => ({ meta: [{ title: "Lead — LeadFlow CRM" }] }),
+  head: () => ({ meta: [{ title: "Lead — Oxo Lead Manager" }] }),
   component: LeadDetail,
 });
 

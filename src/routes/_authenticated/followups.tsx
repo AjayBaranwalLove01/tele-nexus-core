@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/followups")({
-  head: () => ({ meta: [{ title: "Follow-ups — LeadFlow CRM" }] }),
+  head: () => ({ meta: [{ title: "Follow-ups — Oxo Lead Manager" }] }),
   component: FollowupsPage,
 });
 
