@@ -48,6 +48,9 @@ export function LeadRow({ lead }: { lead: Lead }) {
         </div>
         <div className="mt-1 text-xs text-muted-foreground flex flex-wrap gap-3">
           <span>{lead.phone_number || "No phone"}</span>
+          {lead.email && <span>{lead.email}</span>}
+          {lead.city && <span>{lead.city}</span>}
+          {lead.lead_received_date && <span>Recd: {formatDate(lead.lead_received_date)}</span>}
           <span>FU: {formatDate(lead.follow_up_date)}{lead.follow_up_time ? ` ${lead.follow_up_time.slice(0,5)}` : ""}</span>
         </div>
       </div>
