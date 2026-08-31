@@ -41,6 +41,21 @@ function AuthPage() {
     navigate({ to: "/dashboard" });
   };
 
+  const [showForgot, setShowForgot] = useState(false);
+
+  const sendReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return toast.error("Enter your email first");
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("Password reset email sent. Check your inbox.");
+    setShowForgot(false);
+  };
+
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -100,13 +115,35 @@ function AuthPage() {
               <TabsTrigger value="signup">Create account</TabsTrigger>
             </TabsList>
             <TabsContent value="signin">
-              <form onSubmit={signIn} className="space-y-4 mt-4">
-                <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-                <div><Label>Password</Label><Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
-                <Button className="w-full" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sign in
-                </Button>
-              </form>
+              {showForgot ? (
+                <form onSubmit={sendReset} className="space-y-4 mt-4">
+                  <p className="text-sm text-muted-foreground">
+                    Enter your account email and we'll send you a link to set a new password.
+                  </p>
+                  <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+                  <Button className="w-full" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Send reset link
+                  </Button>
+                  <Button type="button" variant="link" className="w-full" onClick={() => setShowForgot(false)}>
+                    Back to sign in
+                  </Button>
+                </form>
+              ) : (
+                <form onSubmit={signIn} className="space-y-4 mt-4">
+                  <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+                  <div><Label>Password</Label><Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+                  <Button className="w-full" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sign in
+                  </Button>
+                  <button
+                    type="button"
+                    className="w-full text-center text-xs text-muted-foreground hover:text-foreground"
+                    onClick={() => setShowForgot(true)}
+                  >
+                    Forgot your password?
+                  </button>
+                </form>
+              )}
             </TabsContent>
             <TabsContent value="signup">
               <form onSubmit={signUp} className="space-y-4 mt-4">
