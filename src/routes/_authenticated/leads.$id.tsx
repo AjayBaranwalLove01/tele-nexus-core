@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/leads/$id")({
   head: () => ({ meta: [{ title: "Lead — Oxo Lead Manager" }] }),
-  component: LeadDetailPage,
+  component: LeadDetail,
 });
 
 function LeadDetail() {
