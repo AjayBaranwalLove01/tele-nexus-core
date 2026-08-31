@@ -126,10 +126,11 @@ function ImportPage() {
           <Upload className="h-4 w-4"/> {running ? `Importing... ${progress}%` : "Start Import"}
         </Button>
         {report && (
-          <div className="grid grid-cols-3 gap-3 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
             <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Total</div><div className="text-xl font-semibold">{report.total.toLocaleString()}</div></div>
             <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Inserted</div><div className="text-xl font-semibold text-success">{report.inserted.toLocaleString()}</div></div>
             <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Duplicates</div><div className="text-xl font-semibold text-warning">{report.duplicates.toLocaleString()}</div></div>
+            <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Skipped (missing name/phone)</div><div className="text-xl font-semibold text-destructive">{report.failed.toLocaleString()}</div></div>
           </div>
         )}
       </Card>
