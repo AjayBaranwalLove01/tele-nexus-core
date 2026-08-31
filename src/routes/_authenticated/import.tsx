@@ -43,13 +43,31 @@ function ImportPage() {
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json<Record<string, any>>(sheet, { defval: "" });
 
+      const toISODate = (v: any) => {
+        if (v === null || v === undefined || String(v).trim() === "") return "";
+        if (v instanceof Date) return v.toISOString().slice(0, 10);
+        if (typeof v === "number") {
+          const d = XLSX.SSF.parse_date_code(v);
+          if (d) return `${d.y}-${String(d.m).padStart(2, "0")}-${String(d.d).padStart(2, "0")}`;
+        }
+        const s = String(v).trim();
+        const parsed = new Date(s);
+        return Number.isNaN(parsed.getTime()) ? "" : parsed.toISOString().slice(0, 10);
+      };
+
       const normalized = rows.map((r) => {
         const keys = Object.keys(r);
         const nameKey = keys.find((k) => /name/i.test(k));
-        const phoneKey = keys.find((k) => /phone|mobile|number/i.test(k));
+        const phoneKey = keys.find((k) => /phone|mobile/i.test(k)) ?? keys.find((k) => /number/i.test(k) && !/date/i.test(k));
+        const emailKey = keys.find((k) => /e-?mail/i.test(k));
+        const cityKey = keys.find((k) => /city|town|location/i.test(k));
+        const dateKey = keys.find((k) => /date/i.test(k));
         return {
           name: nameKey ? String(r[nameKey]).trim() : "",
           phone: phoneKey ? String(r[phoneKey]).trim() : "",
+          email: emailKey ? String(r[emailKey]).trim() : "",
+          city: cityKey ? String(r[cityKey]).trim() : "",
+          received_date: dateKey ? toISODate(r[dateKey]) : "",
         };
       });
 
@@ -59,18 +77,18 @@ function ImportPage() {
       }).select().single();
       if (jobErr) throw jobErr;
 
-      let inserted = 0, dups = 0, total = 0;
+      let inserted = 0, dups = 0, total = 0, failed = 0;
       for (let i = 0; i < normalized.length; i += CHUNK) {
         const slice = normalized.slice(i, i + CHUNK);
         const { data, error } = await supabase.rpc("bulk_insert_leads", { _rows: slice, _job_id: job.id });
         if (error) throw error;
         const res = data as any;
-        total += res.total; inserted += res.inserted; dups += res.duplicates;
+        total += res.total; inserted += res.inserted; dups += res.duplicates; failed += res.failed ?? 0;
         setProgress(Math.round(((i + slice.length) / normalized.length) * 100));
       }
 
       await supabase.from("import_jobs").update({ status: "completed", finished_at: new Date().toISOString() }).eq("id", job.id);
-      setReport({ total, inserted, duplicates: dups });
+      setReport({ total, inserted, duplicates: dups, failed });
       toast.success(`Imported ${inserted.toLocaleString()} leads`);
       qc.invalidateQueries({ queryKey: ["import-jobs"] });
       qc.invalidateQueries({ queryKey: ["admin-dashboard"] });
