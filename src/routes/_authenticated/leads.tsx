@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Phone, MessageCircle, Search, Trash2 } from "lucide-react";
-import { useStatuses, useTemperatures } from "@/hooks/use-meta";
+import { useStatuses, useTemperatures, useTelecallers } from "@/hooks/use-meta";
 import { useMyProfile } from "@/hooks/use-auth";
 import { followupBadge, statusColor, tempColor, formatDate } from "@/lib/lead-utils";
 import { LeadQuickUpdate } from "@/components/lead-quick-update";
@@ -35,28 +35,39 @@ function LeadsPage() {
   const [statusId, setStatusId] = useState<string>("all");
   const [tempId, setTempId] = useState<string>("all");
   const [scope, setScope] = useState<string>("all");
+  const [assignedTo, setAssignedTo] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [gotoValue, setGotoValue] = useState("");
+
+  const { data: telecallers } = useTelecallers();
+
+  const resetPage = () => setPage(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["leads-list", search, statusId, tempId, scope, me?.profile?.id],
+    queryKey: ["leads-list", search, statusId, tempId, scope, assignedTo, page, pageSize, me?.profile?.id],
     queryFn: async () => {
       let q = supabase.from("leads")
-        .select("id,name,phone_number,email,city,lead_received_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)")
+        .select("id,name,phone_number,email,city,lead_received_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)", { count: "exact" })
         .order("updated_at", { ascending: false })
-        .limit(200);
+        .range((page - 1) * pageSize, page * pageSize - 1);
       if (statusId !== "all") q = q.eq("status_id", statusId);
       if (tempId !== "all") q = q.eq("temperature_id", tempId);
+      if (assignedTo !== "all") q = q.eq("assigned_to", assignedTo);
       if (scope === "mine" && me?.profile?.id) q = q.eq("assigned_to", me.profile.id);
       if (scope === "unassigned") q = q.is("assigned_to", null);
       if (search.trim()) q = q.or(`name.ilike.%${search}%,phone_number.ilike.%${search}%`);
-      const { data, error } = await q;
+      const { data, error, count } = await q;
       if (error) throw error;
-      return data ?? [];
+      return { rows: data ?? [], total: count ?? 0 };
     },
   });
+  const totalCount = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const qc = useQueryClient();
   const [selected, setSelected] = useState<number[]>([]);
-  const rows: any[] = (data as any[]) ?? [];
+  const rows: any[] = data?.rows ?? [];
   const allSelected = rows.length > 0 && selected.length === rows.length;
 
   const removeLeads = useMutation({
@@ -108,16 +119,16 @@ function LeadsPage() {
       <Card className="p-3 flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-8" placeholder="Search name or phone..." value={search} onChange={(e)=>setSearch(e.target.value)} />
+          <Input className="pl-8" placeholder="Search name or phone..." value={search} onChange={(e)=>{ setSearch(e.target.value); resetPage(); }} />
         </div>
-        <Select value={statusId} onValueChange={setStatusId}>
+        <Select value={statusId} onValueChange={(v) => { setStatusId(v); resetPage(); }}>
           <SelectTrigger className="w-[160px]"><SelectValue placeholder="Status"/></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
             {statuses?.map((s)=><SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Select value={tempId} onValueChange={setTempId}>
+        <Select value={tempId} onValueChange={(v) => { setTempId(v); resetPage(); }}>
           <SelectTrigger className="w-[140px]"><SelectValue placeholder="Temp"/></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All temps</SelectItem>
@@ -125,7 +136,16 @@ function LeadsPage() {
           </SelectContent>
         </Select>
         {me?.isAdmin && (
-          <Select value={scope} onValueChange={setScope}>
+          <Select value={assignedTo} onValueChange={(v) => { setAssignedTo(v); resetPage(); }}>
+            <SelectTrigger className="w-[170px]"><SelectValue placeholder="Assigned to"/></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All telecallers</SelectItem>
+              {telecallers?.map((t) => <SelectItem key={t.id} value={t.id}>{t.full_name || t.email}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        )}
+        {me?.isAdmin && (
+          <Select value={scope} onValueChange={(v) => { setScope(v); resetPage(); }}>
             <SelectTrigger className="w-[160px]"><SelectValue/></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All leads</SelectItem>
@@ -164,7 +184,7 @@ function LeadsPage() {
                 </tr>
               </thead>
               <tbody>
-                {data?.map((l: any) => {
+                {rows.map((l: any) => {
                   const fu = followupBadge(l.follow_up_date);
                   const wa = l.phone_number?.replace(/\D/g, "");
                   return (
@@ -230,6 +250,54 @@ function LeadsPage() {
           </div>
         </Card>
       )}
+
+      <Card className="p-3 flex flex-wrap items-center gap-3 justify-between">
+        <div className="text-sm text-muted-foreground">
+          Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1}–{Math.min(page * pageSize, totalCount)} of {totalCount} leads
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Rows:</span>
+            <Select value={String(pageSize)} onValueChange={(v) => { setPageSize(Number(v)); resetPage(); }}>
+              <SelectTrigger className="w-[80px]"><SelectValue/></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(1)}>First</Button>
+            <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>Prev</Button>
+            <span className="text-sm px-2">Page {page} of {totalPages}</span>
+            <Button size="sm" variant="outline" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Next</Button>
+            <Button size="sm" variant="outline" disabled={page >= totalPages} onClick={() => setPage(totalPages)}>Last</Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Input
+              className="w-[80px]"
+              placeholder="Go to"
+              value={gotoValue}
+              onChange={(e) => setGotoValue(e.target.value.replace(/\D/g, ""))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const p = Number(gotoValue);
+                  if (p >= 1 && p <= totalPages) { setPage(p); setGotoValue(""); }
+                }
+              }}
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const p = Number(gotoValue);
+                if (p >= 1 && p <= totalPages) { setPage(p); setGotoValue(""); }
+              }}
+            >Go</Button>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }
