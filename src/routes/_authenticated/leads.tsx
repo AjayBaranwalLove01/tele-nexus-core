@@ -250,6 +250,54 @@ function LeadsPage() {
           </div>
         </Card>
       )}
+
+      <Card className="p-3 flex flex-wrap items-center gap-3 justify-between">
+        <div className="text-sm text-muted-foreground">
+          Showing {totalCount === 0 ? 0 : (page - 1) * pageSize + 1}–{Math.min(page * pageSize, totalCount)} of {totalCount} leads
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Rows:</span>
+            <Select value={String(pageSize)} onValueChange={(v) => { setPageSize(Number(v)); resetPage(); }}>
+              <SelectTrigger className="w-[80px]"><SelectValue/></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(1)}>First</Button>
+            <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>Prev</Button>
+            <span className="text-sm px-2">Page {page} of {totalPages}</span>
+            <Button size="sm" variant="outline" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Next</Button>
+            <Button size="sm" variant="outline" disabled={page >= totalPages} onClick={() => setPage(totalPages)}>Last</Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Input
+              className="w-[80px]"
+              placeholder="Go to"
+              value={gotoValue}
+              onChange={(e) => setGotoValue(e.target.value.replace(/\D/g, ""))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const p = Number(gotoValue);
+                  if (p >= 1 && p <= totalPages) { setPage(p); setGotoValue(""); }
+                }
+              }}
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const p = Number(gotoValue);
+                if (p >= 1 && p <= totalPages) { setPage(p); setGotoValue(""); }
+              }}
+            >Go</Button>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }
