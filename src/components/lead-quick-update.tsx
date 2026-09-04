@@ -41,6 +41,27 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
   const [time, setTime] = useState("");
   const [remark, setRemark] = useState("");
   const [assignee, setAssignee] = useState("none");
+  const [newStatus, setNewStatus] = useState("");
+
+  const addStatus = useMutation({
+    mutationFn: async (name: string) => {
+      const nextOrder = (statuses?.length ?? 0) + 1;
+      const { data, error } = await supabase
+        .from("lead_statuses")
+        .insert({ name, sort_order: nextOrder })
+        .select("id")
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (s) => {
+      toast.success("Status added");
+      setStatus(s.id);
+      setNewStatus("");
+      qc.invalidateQueries({ queryKey: STATUSES_KEY });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
 
   useEffect(() => {
     if (lead) {
