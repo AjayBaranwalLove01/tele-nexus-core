@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Phone, MessageCircle, Search, Trash2 } from "lucide-react";
-import { useStatuses, useTemperatures } from "@/hooks/use-meta";
+import { useStatuses, useTemperatures, useTelecallers } from "@/hooks/use-meta";
 import { useMyProfile } from "@/hooks/use-auth";
 import { followupBadge, statusColor, tempColor, formatDate } from "@/lib/lead-utils";
 import { LeadQuickUpdate } from "@/components/lead-quick-update";
