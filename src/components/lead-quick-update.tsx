@@ -69,7 +69,7 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
           patch.assigned_at = next ? new Date().toISOString() : null;
         }
       }
-      const { error } = await supabase.from("leads").update(patch).eq("id", leadId);
+      const { error } = await supabase.from("leads").update(patch as any).eq("id", leadId);
       if (error) throw error;
 
       if (remark.trim()) {
