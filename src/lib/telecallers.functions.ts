@@ -36,12 +36,23 @@ export const createTelecaller = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     const newId = created.user!.id;
 
-    await supabaseAdmin.from("profiles").update({
-      full_name: data.full_name,
-    }).eq("id", newId);
+    const { error: profileErr } = await supabaseAdmin.from("profiles").upsert(
+      {
+        id: newId,
+        full_name: data.full_name,
+        email: data.email,
+        is_active: true,
+        is_approved: true,
+      },
+      { onConflict: "id" },
+    );
+    if (profileErr) throw new Error(profileErr.message);
 
     await supabaseAdmin.from("user_roles").delete().eq("user_id", newId).neq("role", "telecaller");
-    await supabaseAdmin.from("user_roles").upsert({ user_id: newId, role: "telecaller" }, { onConflict: "user_id,role" });
+    const { error: roleErr } = await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: newId, role: "telecaller" }, { onConflict: "user_id,role" });
+    if (roleErr) throw new Error(roleErr.message);
 
     return { id: newId };
   });
