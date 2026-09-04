@@ -125,10 +125,39 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
         <div className="grid gap-3 md:grid-cols-2">
           <div>
             <Label>Status</Label>
-            <Select value={status} onValueChange={setStatus}>
+            <Select
+              value={status}
+              onValueChange={(v) => {
+                if (v === "__add_new__") return;
+                setStatus(v);
+              }}
+            >
               <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
-              <SelectContent>{statuses?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+              <SelectContent>
+                {statuses?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                {isAdmin && (
+                  <SelectItem value="__add_new__" className="text-primary font-medium">+ Add new status…</SelectItem>
+                )}
+              </SelectContent>
             </Select>
+            {isAdmin && (
+              <div className="mt-2 flex gap-2">
+                <Input
+                  placeholder="New status name"
+                  value={newStatus}
+                  onChange={(e) => setNewStatus(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newStatus.trim()) addStatus.mutate(newStatus.trim());
+                  }}
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!newStatus.trim() || addStatus.isPending}
+                  onClick={() => addStatus.mutate(newStatus.trim())}
+                >Add</Button>
+              </div>
+            )}
           </div>
           <div>
             <Label>Temperature</Label>
