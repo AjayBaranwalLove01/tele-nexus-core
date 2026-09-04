@@ -108,6 +108,7 @@ function LeadDetail() {
               <span>Email: {lead.email || "—"}</span>
               <span>City: {lead.city || "—"}</span>
               <span>Received: {formatDate(lead.lead_received_date)}</span>
+              <span>Last call: {formatDate(lead.call_date)}</span>
             </div>
             <div className="flex gap-2 mt-2 flex-wrap">
               {lead.lead_statuses?.name && <Badge variant="outline" className={statusColor(lead.lead_statuses.name)}>{lead.lead_statuses.name}</Badge>}
