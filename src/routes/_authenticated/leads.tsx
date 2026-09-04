@@ -67,7 +67,7 @@ function LeadsPage() {
 
   const qc = useQueryClient();
   const [selected, setSelected] = useState<number[]>([]);
-  const rows: any[] = (data as any[]) ?? [];
+  const rows: any[] = data?.rows ?? [];
   const allSelected = rows.length > 0 && selected.length === rows.length;
 
   const removeLeads = useMutation({
@@ -175,7 +175,7 @@ function LeadsPage() {
                 </tr>
               </thead>
               <tbody>
-                {data?.map((l: any) => {
+                {rows.map((l: any) => {
                   const fu = followupBadge(l.follow_up_date);
                   const wa = l.phone_number?.replace(/\D/g, "");
                   return (
