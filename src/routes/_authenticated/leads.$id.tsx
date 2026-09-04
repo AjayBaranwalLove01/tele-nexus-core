@@ -52,6 +52,7 @@ function LeadDetail() {
   const [temp, setTemp] = useState<string>("");
   const [date, setDate] = useState<string>("");
   const [time, setTime] = useState<string>("");
+  const [callDate, setCallDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [remark, setRemark] = useState("");
 
   useEffect(() => {
@@ -70,6 +71,7 @@ function LeadDetail() {
         temperature_id: temp || null,
         follow_up_date: date || null,
         follow_up_time: time || null,
+        call_date: callDate || new Date().toISOString().slice(0, 10),
       }).eq("id", leadId);
       if (error) throw error;
       if (remark.trim()) {
@@ -136,6 +138,7 @@ function LeadDetail() {
               <SelectContent>{temps?.map(t=><SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
             </Select>
           </div>
+          <div><Label>Call date</Label><Input type="date" value={callDate} onChange={(e)=>setCallDate(e.target.value)}/></div>
           <div><Label>Next follow-up date</Label><Input type="date" value={date} onChange={(e)=>setDate(e.target.value)}/></div>
           <div><Label>Time</Label><Input type="time" value={time} onChange={(e)=>setTime(e.target.value)}/></div>
         </div>
