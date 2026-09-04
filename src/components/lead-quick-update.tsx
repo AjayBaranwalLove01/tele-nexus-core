@@ -71,6 +71,7 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
       setDate(lead.follow_up_date ?? "");
       setTime(lead.follow_up_time ?? "");
       setAssignee((lead as any).assigned_to ?? "none");
+      setCallDate(new Date().toISOString().slice(0, 10));
       setRemark("");
     }
   }, [lead]);
