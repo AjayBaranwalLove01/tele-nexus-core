@@ -124,6 +124,21 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
             <Label>Follow-up time</Label>
             <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
           </div>
+          {isAdmin && (
+            <div className="md:col-span-2">
+              <Label>Assigned telecaller</Label>
+              <Select value={assignee} onValueChange={setAssignee}>
+                <SelectTrigger><SelectValue placeholder="Select telecaller" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Unassigned pool</SelectItem>
+                  {telecallers?.map((t: any) => (
+                    <SelectItem key={t.id} value={t.id}>{t.full_name ?? t.email ?? t.id}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
         </div>
         <div>
           <Label>Add remark</Label>
