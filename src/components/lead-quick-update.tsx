@@ -56,13 +56,22 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
 
   const save = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("leads").update({
+      const patch: Record<string, any> = {
         status_id: status || null,
         temperature_id: temp || null,
         follow_up_date: date || null,
         follow_up_time: time || null,
-      }).eq("id", leadId);
+      };
+      if (isAdmin) {
+        const next = assignee === "none" ? null : assignee;
+        if (next !== ((lead as any)?.assigned_to ?? null)) {
+          patch.assigned_to = next;
+          patch.assigned_at = next ? new Date().toISOString() : null;
+        }
+      }
+      const { error } = await supabase.from("leads").update(patch).eq("id", leadId);
       if (error) throw error;
+
       if (remark.trim()) {
         const { data: { user } } = await supabase.auth.getUser();
         const { error: re } = await supabase.from("lead_remarks").insert({
