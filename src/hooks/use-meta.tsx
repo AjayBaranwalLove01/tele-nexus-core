@@ -28,7 +28,22 @@ export function useTemperatures() {
   });
 }
 
+export function useTelecallers() {
+  return useQuery({
+    queryKey: ["telecaller-options"],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "telecaller");
+      const ids = (roles ?? []).map((r) => r.user_id);
+      if (!ids.length) return [];
+      const { data } = await supabase.from("profiles").select("id,full_name,email").in("id", ids).eq("is_active", true);
+      return data ?? [];
+    },
+  });
+}
+
 export function useSettings() {
+
   return useQuery({
     queryKey: ["crm_settings"],
     queryFn: async () => {
