@@ -119,16 +119,16 @@ function LeadsPage() {
       <Card className="p-3 flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-8" placeholder="Search name or phone..." value={search} onChange={(e)=>setSearch(e.target.value)} />
+          <Input className="pl-8" placeholder="Search name or phone..." value={search} onChange={(e)=>{ setSearch(e.target.value); resetPage(); }} />
         </div>
-        <Select value={statusId} onValueChange={setStatusId}>
+        <Select value={statusId} onValueChange={(v) => { setStatusId(v); resetPage(); }}>
           <SelectTrigger className="w-[160px]"><SelectValue placeholder="Status"/></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
             {statuses?.map((s)=><SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Select value={tempId} onValueChange={setTempId}>
+        <Select value={tempId} onValueChange={(v) => { setTempId(v); resetPage(); }}>
           <SelectTrigger className="w-[140px]"><SelectValue placeholder="Temp"/></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All temps</SelectItem>
