@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { useStatuses, useTemperatures, useTelecallers } from "@/hooks/use-meta";
+import { useStatuses, useTemperatures, useTelecallers, STATUSES_KEY } from "@/hooks/use-meta";
 import { useMyProfile } from "@/hooks/use-auth";
 import { Pencil, Save } from "lucide-react";
 import { toast } from "sonner";
@@ -41,6 +41,27 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
   const [time, setTime] = useState("");
   const [remark, setRemark] = useState("");
   const [assignee, setAssignee] = useState("none");
+  const [newStatus, setNewStatus] = useState("");
+
+  const addStatus = useMutation({
+    mutationFn: async (name: string) => {
+      const nextOrder = (statuses?.length ?? 0) + 1;
+      const { data, error } = await supabase
+        .from("lead_statuses")
+        .insert({ name, sort_order: nextOrder })
+        .select("id")
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (s) => {
+      toast.success("Status added");
+      setStatus(s.id);
+      setNewStatus("");
+      qc.invalidateQueries({ queryKey: STATUSES_KEY });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
 
   useEffect(() => {
     if (lead) {
@@ -104,10 +125,39 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
         <div className="grid gap-3 md:grid-cols-2">
           <div>
             <Label>Status</Label>
-            <Select value={status} onValueChange={setStatus}>
+            <Select
+              value={status}
+              onValueChange={(v) => {
+                if (v === "__add_new__") return;
+                setStatus(v);
+              }}
+            >
               <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
-              <SelectContent>{statuses?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
+              <SelectContent>
+                {statuses?.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                {isAdmin && (
+                  <SelectItem value="__add_new__" className="text-primary font-medium">+ Add new status…</SelectItem>
+                )}
+              </SelectContent>
             </Select>
+            {isAdmin && (
+              <div className="mt-2 flex gap-2">
+                <Input
+                  placeholder="New status name"
+                  value={newStatus}
+                  onChange={(e) => setNewStatus(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newStatus.trim()) addStatus.mutate(newStatus.trim());
+                  }}
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!newStatus.trim() || addStatus.isPending}
+                  onClick={() => addStatus.mutate(newStatus.trim())}
+                >Add</Button>
+              </div>
+            )}
           </div>
           <div>
             <Label>Temperature</Label>
