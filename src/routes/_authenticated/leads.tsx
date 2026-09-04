@@ -136,7 +136,16 @@ function LeadsPage() {
           </SelectContent>
         </Select>
         {me?.isAdmin && (
-          <Select value={scope} onValueChange={setScope}>
+          <Select value={assignedTo} onValueChange={(v) => { setAssignedTo(v); resetPage(); }}>
+            <SelectTrigger className="w-[170px]"><SelectValue placeholder="Assigned to"/></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All telecallers</SelectItem>
+              {telecallers?.map((t) => <SelectItem key={t.id} value={t.id}>{t.full_name || t.email}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        )}
+        {me?.isAdmin && (
+          <Select value={scope} onValueChange={(v) => { setScope(v); resetPage(); }}>
             <SelectTrigger className="w-[160px]"><SelectValue/></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All leads</SelectItem>
