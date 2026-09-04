@@ -213,6 +213,8 @@ function ImportPage() {
             <Download className="h-4 w-4" /> Sample template
           </Button>
           <AddLeadDialog />
+          {me?.isAdmin && <AssignByPhoneDialog />}
+
           {me?.isAdmin && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
