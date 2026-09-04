@@ -39,6 +39,7 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
   const [temp, setTemp] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [callDate, setCallDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [remark, setRemark] = useState("");
   const [assignee, setAssignee] = useState("none");
   const [newStatus, setNewStatus] = useState("");
@@ -82,6 +83,7 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
         temperature_id: temp || null,
         follow_up_date: date || null,
         follow_up_time: time || null,
+        call_date: callDate || new Date().toISOString().slice(0, 10),
       };
       if (isAdmin) {
         const next = assignee === "none" ? null : assignee;
@@ -165,6 +167,10 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
               <SelectTrigger><SelectValue placeholder="Select temperature" /></SelectTrigger>
               <SelectContent>{temps?.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
             </Select>
+          </div>
+          <div>
+            <Label>Call date</Label>
+            <Input type="date" value={callDate} onChange={(e) => setCallDate(e.target.value)} />
           </div>
           <div>
             <Label>Follow-up date</Label>
