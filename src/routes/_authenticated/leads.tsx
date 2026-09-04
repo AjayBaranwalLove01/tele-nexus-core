@@ -35,24 +35,35 @@ function LeadsPage() {
   const [statusId, setStatusId] = useState<string>("all");
   const [tempId, setTempId] = useState<string>("all");
   const [scope, setScope] = useState<string>("all");
+  const [assignedTo, setAssignedTo] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [gotoValue, setGotoValue] = useState("");
+
+  const { data: telecallers } = useTelecallers();
+
+  const resetPage = () => setPage(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["leads-list", search, statusId, tempId, scope, me?.profile?.id],
+    queryKey: ["leads-list", search, statusId, tempId, scope, assignedTo, page, pageSize, me?.profile?.id],
     queryFn: async () => {
       let q = supabase.from("leads")
-        .select("id,name,phone_number,email,city,lead_received_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)")
+        .select("id,name,phone_number,email,city,lead_received_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)", { count: "exact" })
         .order("updated_at", { ascending: false })
-        .limit(200);
+        .range((page - 1) * pageSize, page * pageSize - 1);
       if (statusId !== "all") q = q.eq("status_id", statusId);
       if (tempId !== "all") q = q.eq("temperature_id", tempId);
+      if (assignedTo !== "all") q = q.eq("assigned_to", assignedTo);
       if (scope === "mine" && me?.profile?.id) q = q.eq("assigned_to", me.profile.id);
       if (scope === "unassigned") q = q.is("assigned_to", null);
       if (search.trim()) q = q.or(`name.ilike.%${search}%,phone_number.ilike.%${search}%`);
-      const { data, error } = await q;
+      const { data, error, count } = await q;
       if (error) throw error;
-      return data ?? [];
+      return { rows: data ?? [], total: count ?? 0 };
     },
   });
+  const totalCount = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const qc = useQueryClient();
   const [selected, setSelected] = useState<number[]>([]);
