@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { useStatuses, useTemperatures } from "@/hooks/use-meta";
+import { useStatuses, useTemperatures, useTelecallers } from "@/hooks/use-meta";
+import { useMyProfile } from "@/hooks/use-auth";
 import { Pencil, Save } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,6 +17,9 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
   const qc = useQueryClient();
   const { data: statuses } = useStatuses();
   const { data: temps } = useTemperatures();
+  const { data: me } = useMyProfile();
+  const isAdmin = !!me?.isAdmin;
+  const { data: telecallers } = useTelecallers();
 
   const { data: lead } = useQuery({
     queryKey: ["lead-quick", leadId],
@@ -23,7 +27,7 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
     queryFn: async () => {
       const { data, error } = await supabase
         .from("leads")
-        .select("status_id,temperature_id,follow_up_date,follow_up_time")
+        .select("status_id,temperature_id,follow_up_date,follow_up_time,assigned_to")
         .eq("id", leadId)
         .single();
       if (error) throw error;
@@ -36,6 +40,7 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [remark, setRemark] = useState("");
+  const [assignee, setAssignee] = useState("none");
 
   useEffect(() => {
     if (lead) {
@@ -43,9 +48,11 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
       setTemp(lead.temperature_id ?? "");
       setDate(lead.follow_up_date ?? "");
       setTime(lead.follow_up_time ?? "");
+      setAssignee((lead as any).assigned_to ?? "none");
       setRemark("");
     }
   }, [lead]);
+
 
   const save = useMutation({
     mutationFn: async () => {
