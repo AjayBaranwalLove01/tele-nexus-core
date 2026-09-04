@@ -19,6 +19,8 @@ import { downloadLeadTemplate } from "@/lib/lead-template";
 import { toTitleCase } from "@/lib/lead-utils";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
 import { useMyProfile } from "@/hooks/use-auth";
+import { AssignByPhoneDialog } from "@/components/assign-by-phone-dialog";
+
 
 export const Route = createFileRoute("/_authenticated/import")({
   head: () => ({ meta: [{ title: "Import Leads — Oxo Lead Manager" }] }),
@@ -211,6 +213,8 @@ function ImportPage() {
             <Download className="h-4 w-4" /> Sample template
           </Button>
           <AddLeadDialog />
+          {me?.isAdmin && <AssignByPhoneDialog />}
+
           {me?.isAdmin && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
