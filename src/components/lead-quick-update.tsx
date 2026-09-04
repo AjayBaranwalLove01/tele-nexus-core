@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { useStatuses, useTemperatures, useTelecallers } from "@/hooks/use-meta";
+import { useStatuses, useTemperatures, useTelecallers, STATUSES_KEY } from "@/hooks/use-meta";
 import { useMyProfile } from "@/hooks/use-auth";
 import { Pencil, Save } from "lucide-react";
 import { toast } from "sonner";
