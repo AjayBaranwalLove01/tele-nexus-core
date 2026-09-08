@@ -67,7 +67,24 @@ export function LeadRow({ lead }: { lead: Lead }) {
           </>
         )}
         <LeadQuickUpdate leadId={lead.id} leadName={lead.name} />
+        <Button
+          size="sm"
+          variant="ghost"
+          aria-expanded={showRemarks}
+          aria-label={showRemarks ? "Hide remarks" : "Show remarks"}
+          onClick={() => setShowRemarks((v) => !v)}
+        >
+          {showRemarks ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          <MessageSquare className="h-4 w-4" />
+          Remarks
+        </Button>
       </div>
+      </div>
+      {showRemarks && (
+        <div className="rounded-md border border-border">
+          <LeadRemarksInline leadId={lead.id} />
+        </div>
+      )}
     </Card>
   );
 }
