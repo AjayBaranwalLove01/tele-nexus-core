@@ -106,6 +106,11 @@ export function AssignByPhoneDialog() {
             {fileName && (
               <div className="text-sm text-muted-foreground">
                 {fileName} · <Badge variant="outline">{phones.length} number(s)</Badge>
+                {rejected.length > 0 && (
+                  <div className="mt-1 text-destructive">
+                    {rejected.length} rejected — phone number is not 10 digits: {rejected.slice(0, 10).join(", ")}{rejected.length > 10 ? "…" : ""}
+                  </div>
+                )}
               </div>
             )}
           </div>
