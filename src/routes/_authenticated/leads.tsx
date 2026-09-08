@@ -146,6 +146,14 @@ function LeadsPage() {
           <p className="text-sm text-muted-foreground">Search, filter, and manage leads.</p>
         </div>
         <div className="flex gap-2">
+          {me?.isAdmin && (
+            <Button variant="outline" onClick={exportLeads} disabled={exporting}>
+              <Download className="h-4 w-4" />{exporting ? "Exporting…" : "Download Excel"}
+            </Button>
+          )}
+          {me?.isAdmin && selected.length > 0 && (
+            <AssignSelectedDialog leadIds={selected} onDone={() => setSelected([])} />
+          )}
           {me?.isAdmin && selected.length > 0 && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
