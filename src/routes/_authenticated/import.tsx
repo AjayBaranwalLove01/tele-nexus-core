@@ -142,7 +142,7 @@ function ImportPage() {
       }).select().single();
       if (jobErr) throw jobErr;
 
-      let inserted = 0, dups = preview.duplicates.length, failed = preview.skipped.length;
+      let inserted = 0, dups = preview.duplicates.length, failed = preview.skipped.length + preview.badPhone.length;
       for (let i = 0; i < normalized.length; i += CHUNK) {
         const slice = normalized.slice(i, i + CHUNK);
         const { data, error } = await supabase.rpc("bulk_insert_leads", { _rows: slice, _job_id: job.id });
