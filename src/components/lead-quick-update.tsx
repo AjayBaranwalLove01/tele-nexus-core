@@ -215,6 +215,23 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
           <Label>Add remark</Label>
           <Textarea value={remark} onChange={(e) => setRemark(e.target.value)} rows={3} placeholder="What happened on this call?" />
         </div>
+        <div>
+          <Label>Remark history</Label>
+          <div className="mt-1 max-h-48 overflow-y-auto rounded-md border border-border">
+            {(!remarks || remarks.length === 0) && (
+              <div className="p-3 text-sm text-muted-foreground">No remarks yet.</div>
+            )}
+            {remarks?.map((r: any) => (
+              <div key={r.id} className="border-b border-border p-3 last:border-b-0">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-medium text-foreground">{r.profiles?.full_name ?? "Unknown"}</span>
+                  <span>{new Date(r.created_at).toLocaleString()}</span>
+                </div>
+                <div className="mt-0.5 whitespace-pre-wrap text-sm">{r.remark}</div>
+              </div>
+            ))}
+          </div>
+        </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={() => save.mutate()} disabled={save.isPending}>
