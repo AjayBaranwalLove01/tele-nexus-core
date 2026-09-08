@@ -10,7 +10,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useTelecallers } from "@/hooks/use-meta";
+import { useTelecallers, useSettings } from "@/hooks/use-meta";
 import { UserCheck } from "lucide-react";
 import { toast } from "sonner";
 
