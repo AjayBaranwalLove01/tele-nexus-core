@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import { Phone, MessageCircle, Flame, Thermometer, Snowflake } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Phone, MessageCircle, Flame, Thermometer, Snowflake, ChevronDown, ChevronRight, MessageSquare } from "lucide-react";
+import { LeadRemarksInline } from "@/components/lead-remarks-inline";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
