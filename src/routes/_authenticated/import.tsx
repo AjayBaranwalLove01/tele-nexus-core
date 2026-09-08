@@ -186,7 +186,7 @@ function ImportPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.slice(0, 50).map((r, i) => (
+              {rows.map((r, i) => (
                 <tr key={i} className="border-t">
                   <td className="p-2 text-muted-foreground">{r.received_date || "Today"}</td>
                   <td className="p-2">{r.name || "—"}</td>
@@ -197,7 +197,7 @@ function ImportPage() {
               ))}
             </tbody>
           </table>
-          {rows.length > 50 && <div className="p-2 text-xs text-muted-foreground">Showing first 50 of {rows.length.toLocaleString()}.</div>}
+          {rows.length > 0 && <div className="p-2 text-xs text-muted-foreground">Showing all {rows.length.toLocaleString()} records.</div>}
         </div>
       )}
     </div>
