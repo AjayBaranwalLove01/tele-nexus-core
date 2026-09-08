@@ -62,6 +62,26 @@ export function TelecallerDashboard() {
     hot: sorted.filter((l) => l.lead_temperatures?.name === "Hot").length,
   };
 
+  const { data: statusCounts = {} } = useQuery({
+    queryKey: ["my-status-distribution"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return {} as Record<string, number>;
+      const { data, error } = await supabase
+        .from("leads")
+        .select("status_id, lead_statuses(name)")
+        .eq("assigned_to", user.id)
+        .limit(10000);
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      (data ?? []).forEach((r: any) => {
+        const n = r.lead_statuses?.name ?? "—";
+        counts[n] = (counts[n] || 0) + 1;
+      });
+      return counts;
+    },
+  });
+
   const getMore = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.rpc("get_more_leads");
