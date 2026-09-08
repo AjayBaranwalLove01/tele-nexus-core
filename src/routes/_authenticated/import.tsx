@@ -19,6 +19,7 @@ import { downloadLeadTemplate } from "@/lib/lead-template";
 import { toTitleCase } from "@/lib/lead-utils";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
 import { useMyProfile } from "@/hooks/use-auth";
+import { useSettings } from "@/hooks/use-meta";
 import { AssignByPhoneDialog } from "@/components/assign-by-phone-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UpdateLeadsFromExcel } from "@/components/update-leads-from-excel";
@@ -36,12 +37,15 @@ type Preview = {
   valid: Row[];
   duplicates: Row[];
   skipped: Row[];
+  badPhone: Row[];
   total: number;
 };
 
 function ImportPage() {
   const qc = useQueryClient();
   const { data: me } = useMyProfile();
+  const { data: settings } = useSettings();
+  const enforce10 = (settings as any)?.enforce_10_digit_phone ?? true;
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
   const [running, setRunning] = useState(false);
@@ -111,14 +115,15 @@ function ImportPage() {
       const rows = await parseFile(file);
       const existing = await fetchExistingPhones();
       const seen = new Set<string>();
-      const valid: Row[] = [], duplicates: Row[] = [], skipped: Row[] = [];
+      const valid: Row[] = [], duplicates: Row[] = [], skipped: Row[] = [], badPhone: Row[] = [];
       for (const r of rows) {
         if (!r.name.trim() || !r.phone.trim()) { skipped.push(r); continue; }
+        if (enforce10 && r.phone.replace(/\D/g, "").length !== 10) { badPhone.push(r); continue; }
         if (existing.has(r.phone) || seen.has(r.phone)) { duplicates.push(r); continue; }
         seen.add(r.phone);
         valid.push(r);
       }
-      setPreview({ valid, duplicates, skipped, total: rows.length });
+      setPreview({ valid, duplicates, skipped, badPhone, total: rows.length });
     } catch (e: any) {
       toast.error(e.message ?? "Could not read file");
     } finally {
@@ -137,7 +142,7 @@ function ImportPage() {
       }).select().single();
       if (jobErr) throw jobErr;
 
-      let inserted = 0, dups = preview.duplicates.length, failed = preview.skipped.length;
+      let inserted = 0, dups = preview.duplicates.length, failed = preview.skipped.length + preview.badPhone.length;
       for (let i = 0; i < normalized.length; i += CHUNK) {
         const slice = normalized.slice(i, i + CHUNK);
         const { data, error } = await supabase.rpc("bulk_insert_leads", { _rows: slice, _job_id: job.id });
@@ -294,10 +299,12 @@ function ImportPage() {
             <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">To insert</div><div className="text-xl font-semibold text-success">{preview.valid.length.toLocaleString()}</div></div>
             <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Duplicates</div><div className="text-xl font-semibold text-warning">{preview.duplicates.length.toLocaleString()}</div></div>
             <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Skipped (missing name/phone)</div><div className="text-xl font-semibold text-destructive">{preview.skipped.length.toLocaleString()}</div></div>
+            {enforce10 && <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Invalid phone (not 10 digits)</div><div className="text-xl font-semibold text-destructive">{preview.badPhone.length.toLocaleString()}</div></div>}
           </div>
           <PreviewTable rows={preview.valid} title="Will be inserted" />
           <PreviewTable rows={preview.duplicates} title="Duplicates (skipped)" />
           <PreviewTable rows={preview.skipped} title="Skipped — missing name or phone" />
+          {enforce10 && <PreviewTable rows={preview.badPhone} title="Rejected — phone number is not 10 digits" />}
         </Card>
       )}
 

@@ -22,16 +22,21 @@ function SettingsPage() {
   const { data: temps } = useTemperatures();
   const [perCaller, setPerCaller] = useState(50);
   const [autoRefill, setAutoRefill] = useState(false);
+  const [phone10, setPhone10] = useState(true);
 
   useEffect(() => {
-    if (s) { setPerCaller(s.leads_per_telecaller); setAutoRefill(s.auto_refill); }
+    if (s) {
+      setPerCaller(s.leads_per_telecaller);
+      setAutoRefill(s.auto_refill);
+      setPhone10((s as any).enforce_10_digit_phone ?? true);
+    }
   }, [s]);
 
   const save = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from("crm_settings").update({
-        leads_per_telecaller: perCaller, auto_refill: autoRefill,
-      }).eq("id", 1);
+        leads_per_telecaller: perCaller, auto_refill: autoRefill, enforce_10_digit_phone: phone10,
+      } as any).eq("id", 1);
       if (error) throw error;
     },
     onSuccess: () => { toast.success("Settings saved"); qc.invalidateQueries({ queryKey: ["crm_settings"] }); },
@@ -57,6 +62,13 @@ function SettingsPage() {
               <Switch checked={autoRefill} onCheckedChange={setAutoRefill}/>
               <Label>Auto-refill on zero active leads</Label>
             </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 border-t pt-4">
+          <Switch checked={phone10} onCheckedChange={setPhone10} />
+          <div>
+            <Label>Require 10-digit phone numbers on upload</Label>
+            <p className="text-xs text-muted-foreground">When on, uploaded rows whose phone number does not have exactly 10 digits are rejected.</p>
           </div>
         </div>
         <Button onClick={()=>save.mutate()} disabled={save.isPending}>Save</Button>

@@ -10,7 +10,7 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useTelecallers } from "@/hooks/use-meta";
+import { useTelecallers, useSettings } from "@/hooks/use-meta";
 import { UserCheck } from "lucide-react";
 import { toast } from "sonner";
 
@@ -20,26 +20,34 @@ export function AssignByPhoneDialog() {
   const [open, setOpen] = useState(false);
   const [assignee, setAssignee] = useState("");
   const [phones, setPhones] = useState<string[]>([]);
+  const [rejected, setRejected] = useState<string[]>([]);
   const [fileName, setFileName] = useState("");
   const [busy, setBusy] = useState(false);
+  const { data: settings } = useSettings();
+  const enforce10 = (settings as any)?.enforce_10_digit_phone ?? true;
 
   const onFile = async (f: File | null) => {
-    setPhones([]); setFileName("");
+    setPhones([]); setRejected([]); setFileName("");
     if (!f) return;
     try {
       const wb = XLSX.read(await f.arrayBuffer(), { type: "array" });
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json<Record<string, any>>(sheet, { defval: "" });
       const list: string[] = [];
+      const bad: string[] = [];
       for (const r of rows) {
         const keys = Object.keys(r);
         const key = keys.find((k) => /phone|mobile|number|contact/i.test(k)) ?? keys[0];
         const v = String(r[key] ?? "").trim();
-        if (v.replace(/\D/g, "")) list.push(v);
+        const digits = v.replace(/\D/g, "");
+        if (!digits) continue;
+        if (enforce10 && digits.length !== 10) { bad.push(v); continue; }
+        list.push(v);
       }
       setPhones(Array.from(new Set(list)));
+      setRejected(Array.from(new Set(bad)));
       setFileName(f.name);
-      if (!list.length) toast.error("No phone numbers found in the file");
+      if (!list.length) toast.error("No valid phone numbers found in the file");
     } catch (e: any) {
       toast.error(e.message ?? "Could not read file");
     }
@@ -98,6 +106,11 @@ export function AssignByPhoneDialog() {
             {fileName && (
               <div className="text-sm text-muted-foreground">
                 {fileName} · <Badge variant="outline">{phones.length} number(s)</Badge>
+                {rejected.length > 0 && (
+                  <div className="mt-1 text-destructive">
+                    {rejected.length} rejected — phone number is not 10 digits: {rejected.slice(0, 10).join(", ")}{rejected.length > 10 ? "…" : ""}
+                  </div>
+                )}
               </div>
             )}
           </div>
