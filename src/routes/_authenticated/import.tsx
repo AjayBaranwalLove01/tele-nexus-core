@@ -112,14 +112,15 @@ function ImportPage() {
       const rows = await parseFile(file);
       const existing = await fetchExistingPhones();
       const seen = new Set<string>();
-      const valid: Row[] = [], duplicates: Row[] = [], skipped: Row[] = [];
+      const valid: Row[] = [], duplicates: Row[] = [], skipped: Row[] = [], badPhone: Row[] = [];
       for (const r of rows) {
         if (!r.name.trim() || !r.phone.trim()) { skipped.push(r); continue; }
+        if (enforce10 && r.phone.replace(/\D/g, "").length !== 10) { badPhone.push(r); continue; }
         if (existing.has(r.phone) || seen.has(r.phone)) { duplicates.push(r); continue; }
         seen.add(r.phone);
         valid.push(r);
       }
-      setPreview({ valid, duplicates, skipped, total: rows.length });
+      setPreview({ valid, duplicates, skipped, badPhone, total: rows.length });
     } catch (e: any) {
       toast.error(e.message ?? "Could not read file");
     } finally {
