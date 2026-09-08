@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.title_case(text) TO authenticated, anon, service_role;
