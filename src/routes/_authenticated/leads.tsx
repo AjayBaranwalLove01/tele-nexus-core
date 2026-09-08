@@ -15,12 +15,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Phone, MessageCircle, Search, Trash2 } from "lucide-react";
+import { Phone, MessageCircle, Search, Trash2, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 import { useStatuses, useTemperatures, useTelecallers } from "@/hooks/use-meta";
 import { useMyProfile } from "@/hooks/use-auth";
-import { followupBadge, statusColor, tempColor, formatDate } from "@/lib/lead-utils";
+import { followupBadge, statusColor, tempColor, formatDate, toTitleCase } from "@/lib/lead-utils";
 import { LeadQuickUpdate } from "@/components/lead-quick-update";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
+import { AssignSelectedDialog } from "@/components/assign-selected-dialog";
 
 export const Route = createFileRoute("/_authenticated/leads")({
   head: () => ({ meta: [{ title: "Leads — Oxo Lead Manager" }] }),
@@ -85,6 +87,57 @@ function LeadsPage() {
     onError: (e: any) => toast.error(e.message ?? "Delete failed"),
   });
 
+  const [exporting, setExporting] = useState(false);
+  const exportLeads = async () => {
+    setExporting(true);
+    try {
+      const PAGE = 1000;
+      const rows: any[] = [];
+      for (let from = 0; ; from += PAGE) {
+        let q = supabase.from("leads")
+          .select("id,name,phone_number,email,city,lead_received_date,call_date,follow_up_date,follow_up_time,remarks_count,last_remark,assigned_at,completed_at,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)")
+          .order("id")
+          .range(from, from + PAGE - 1);
+        if (statusId !== "all") q = q.eq("status_id", statusId);
+        if (tempId !== "all") q = q.eq("temperature_id", tempId);
+        if (assignedTo !== "all") q = q.eq("assigned_to", assignedTo);
+        if (scope === "mine" && me?.profile?.id) q = q.eq("assigned_to", me.profile.id);
+        if (scope === "unassigned") q = q.is("assigned_to", null);
+        if (search.trim()) q = q.or(`name.ilike.%${search}%,phone_number.ilike.%${search}%`);
+        const { data, error } = await q;
+        if (error) throw error;
+        rows.push(...(data ?? []));
+        if (!data || data.length < PAGE) break;
+      }
+      if (rows.length === 0) { toast.info("No leads to export"); return; }
+      const sheet = rows.map((l: any) => ({
+        "Lead ID": l.id,
+        "Name": toTitleCase(l.name) ?? "",
+        "Phone": l.phone_number ?? "",
+        "Email": l.email ?? "",
+        "City": toTitleCase(l.city) ?? "",
+        "Status": l.lead_statuses?.name ?? "",
+        "Temperature": l.lead_temperatures?.name ?? "",
+        "Assigned To": l.profiles?.full_name ?? "",
+        "Received Date": l.lead_received_date ?? "",
+        "Call Date": l.call_date ?? "",
+        "Follow-up Date": l.follow_up_date ?? "",
+        "Follow-up Time": l.follow_up_time ?? "",
+        "Remarks Count": l.remarks_count ?? 0,
+        "Last Remark": l.last_remark ?? "",
+        "Completed": l.completed_at ? "Yes" : "No",
+      }));
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(sheet), "Leads");
+      XLSX.writeFile(wb, `leads-export-${new Date().toISOString().slice(0, 10)}.xlsx`);
+      toast.success(`Exported ${rows.length.toLocaleString()} leads`);
+    } catch (e: any) {
+      toast.error(e.message ?? "Export failed");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -93,6 +146,14 @@ function LeadsPage() {
           <p className="text-sm text-muted-foreground">Search, filter, and manage leads.</p>
         </div>
         <div className="flex gap-2">
+          {me?.isAdmin && (
+            <Button variant="outline" onClick={exportLeads} disabled={exporting}>
+              <Download className="h-4 w-4" />{exporting ? "Exporting…" : "Download Excel"}
+            </Button>
+          )}
+          {me?.isAdmin && selected.length > 0 && (
+            <AssignSelectedDialog leadIds={selected} onDone={() => setSelected([])} />
+          )}
           {me?.isAdmin && selected.length > 0 && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
