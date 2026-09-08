@@ -43,6 +43,8 @@ type Preview = {
 function ImportPage() {
   const qc = useQueryClient();
   const { data: me } = useMyProfile();
+  const { data: settings } = useSettings();
+  const enforce10 = (settings as any)?.enforce_10_digit_phone ?? true;
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
   const [running, setRunning] = useState(false);
