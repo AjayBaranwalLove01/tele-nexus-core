@@ -309,6 +309,12 @@ function ImportPage() {
           ))}
         </div>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="update" className="mt-4">
+          <UpdateLeadsFromExcel />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
