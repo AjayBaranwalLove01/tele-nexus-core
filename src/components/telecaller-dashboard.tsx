@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LeadRow } from "@/components/lead-row";
 import { Plus, CheckCircle2, Flame, CalendarClock, CalendarX } from "lucide-react";
 import { toast } from "sonner";
+import { StatusDistribution } from "@/components/status-distribution";
 
 type LeadRowT = {
   id: number;
@@ -61,6 +62,26 @@ export function TelecallerDashboard() {
     hot: sorted.filter((l) => l.lead_temperatures?.name === "Hot").length,
   };
 
+  const { data: statusCounts = {} } = useQuery({
+    queryKey: ["my-status-distribution"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return {} as Record<string, number>;
+      const { data, error } = await supabase
+        .from("leads")
+        .select("status_id, lead_statuses(name)")
+        .eq("assigned_to", user.id)
+        .limit(10000);
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      (data ?? []).forEach((r: any) => {
+        const n = r.lead_statuses?.name ?? "—";
+        counts[n] = (counts[n] || 0) + 1;
+      });
+      return counts;
+    },
+  });
+
   const getMore = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.rpc("get_more_leads");
@@ -70,6 +91,7 @@ export function TelecallerDashboard() {
     onSuccess: (n) => {
       toast.success(n > 0 ? `Assigned ${n} new leads` : "No leads available in pool");
       qc.invalidateQueries({ queryKey: ["my-leads"] });
+      qc.invalidateQueries({ queryKey: ["my-status-distribution"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -113,6 +135,12 @@ export function TelecallerDashboard() {
           <div className="mt-2 text-2xl font-semibold">{stats.hot}</div>
         </Card>
       </div>
+
+      <StatusDistribution
+        counts={statusCounts}
+        title="My Lead Status Distribution"
+        subtitle="Statuses across all leads assigned to you."
+      />
 
       <div>
         <div className="font-semibold mb-3">My Follow-up Queue</div>
