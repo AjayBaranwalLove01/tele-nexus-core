@@ -251,6 +251,16 @@ function ImportPage() {
           <FileSpreadsheet className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
           <Input type="file" accept=".xlsx,.xls,.csv" onChange={(e)=>{ setFile(e.target.files?.[0] ?? null); setPreview(null); setReport(null); }} className="max-w-sm mx-auto" />
           {file && <div className="mt-2 text-sm text-muted-foreground">{file.name} · {(file.size/1024).toFixed(1)} KB</div>}
+          <div className="mt-4 mx-auto max-w-md rounded-md bg-muted/50 p-3 text-left text-xs text-muted-foreground">
+            <div className="font-medium text-foreground mb-1">Excel column format (header row):</div>
+            <div className="font-mono">Lead Received Date | Name | Phone Number | Email | City</div>
+            <ul className="mt-1 list-disc pl-4 space-y-0.5">
+              <li><span className="font-medium text-foreground">Name</span> and <span className="font-medium text-foreground">Phone Number</span> are mandatory — rows missing either are skipped.</li>
+              <li>Lead Received Date is optional (defaults to today). Use YYYY-MM-DD format.</li>
+              <li>Email and City are optional.</li>
+              <li>Download the <span className="font-medium text-foreground">Sample template</span> above to start from the correct format.</li>
+            </ul>
+          </div>
         </div>
         {running && <Progress value={progress} />}
         {!preview ? (
