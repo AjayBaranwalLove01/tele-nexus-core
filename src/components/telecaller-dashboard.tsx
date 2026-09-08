@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LeadRow } from "@/components/lead-row";
 import { Plus, CheckCircle2, Flame, CalendarClock, CalendarX } from "lucide-react";
 import { toast } from "sonner";
+import { StatusDistribution } from "@/components/status-distribution";
 
 type LeadRowT = {
   id: number;
