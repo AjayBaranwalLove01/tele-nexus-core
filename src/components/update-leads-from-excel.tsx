@@ -183,7 +183,7 @@ export function UpdateLeadsFromExcel() {
     let updated = 0;
     for (let i = 0; i < review.ready.length; i++) {
       const c = review.ready[i];
-      const patch: Record<string, any> = {};
+      const patch: { status_id?: string | null; call_date?: string | null; assigned_to?: string | null; assigned_at?: string | null } = {};
       if (c.changed.status) patch.status_id = c.newStatusId;
       if (c.changed.callDate) patch.call_date = c.newCallDate;
       if (c.changed.caller) { patch.assigned_to = c.newCallerId; patch.assigned_at = new Date().toISOString(); }
