@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import { Phone, MessageCircle, Flame, Thermometer, Snowflake } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Phone, MessageCircle, Flame, Thermometer, Snowflake, ChevronDown, ChevronRight, MessageSquare } from "lucide-react";
+import { LeadRemarksInline } from "@/components/lead-remarks-inline";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -32,8 +33,10 @@ export function LeadRow({ lead }: { lead: Lead }) {
   }, [lead.temperature_name]);
 
   const wa = lead.phone_number?.replace(/\D/g, "");
+  const [showRemarks, setShowRemarks] = useState(false);
   return (
-    <Card className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+    <Card className="p-4 flex flex-col gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <Link to="/leads/$id" params={{ id: String(lead.id) }} className="font-medium hover:underline truncate">
@@ -64,7 +67,24 @@ export function LeadRow({ lead }: { lead: Lead }) {
           </>
         )}
         <LeadQuickUpdate leadId={lead.id} leadName={lead.name} />
+        <Button
+          size="sm"
+          variant="ghost"
+          aria-expanded={showRemarks}
+          aria-label={showRemarks ? "Hide remarks" : "Show remarks"}
+          onClick={() => setShowRemarks((v) => !v)}
+        >
+          {showRemarks ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          <MessageSquare className="h-4 w-4" />
+          Remarks
+        </Button>
       </div>
+      </div>
+      {showRemarks && (
+        <div className="rounded-md border border-border">
+          <LeadRemarksInline leadId={lead.id} />
+        </div>
+      )}
     </Card>
   );
 }
