@@ -20,6 +20,8 @@ import { toTitleCase } from "@/lib/lead-utils";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
 import { useMyProfile } from "@/hooks/use-auth";
 import { AssignByPhoneDialog } from "@/components/assign-by-phone-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UpdateLeadsFromExcel } from "@/components/update-leads-from-excel";
 
 
 export const Route = createFileRoute("/_authenticated/import")({
