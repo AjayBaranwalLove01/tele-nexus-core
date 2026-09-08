@@ -299,6 +299,7 @@ function ImportPage() {
             <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">To insert</div><div className="text-xl font-semibold text-success">{preview.valid.length.toLocaleString()}</div></div>
             <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Duplicates</div><div className="text-xl font-semibold text-warning">{preview.duplicates.length.toLocaleString()}</div></div>
             <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Skipped (missing name/phone)</div><div className="text-xl font-semibold text-destructive">{preview.skipped.length.toLocaleString()}</div></div>
+            {enforce10 && <div className="rounded-lg border p-3"><div className="text-xs text-muted-foreground">Invalid phone (not 10 digits)</div><div className="text-xl font-semibold text-destructive">{preview.badPhone.length.toLocaleString()}</div></div>}
           </div>
           <PreviewTable rows={preview.valid} title="Will be inserted" />
           <PreviewTable rows={preview.duplicates} title="Duplicates (skipped)" />
