@@ -35,6 +35,20 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
     },
   });
 
+  const { data: remarks } = useQuery({
+    queryKey: ["remarks", leadId],
+    enabled: open,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("lead_remarks")
+        .select("id,remark,created_at,profiles:user_id(full_name)")
+        .eq("lead_id", leadId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const [status, setStatus] = useState("");
   const [temp, setTemp] = useState("");
   const [date, setDate] = useState("");
