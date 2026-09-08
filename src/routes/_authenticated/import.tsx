@@ -20,6 +20,8 @@ import { toTitleCase } from "@/lib/lead-utils";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
 import { useMyProfile } from "@/hooks/use-auth";
 import { AssignByPhoneDialog } from "@/components/assign-by-phone-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UpdateLeadsFromExcel } from "@/components/update-leads-from-excel";
 
 
 export const Route = createFileRoute("/_authenticated/import")({
@@ -237,6 +239,13 @@ function ImportPage() {
         </div>
       </div>
 
+      <Tabs defaultValue="new">
+        <TabsList>
+          <TabsTrigger value="new">Import new leads</TabsTrigger>
+          <TabsTrigger value="update">Update existing leads</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="new" className="space-y-6 mt-4">
       <Card className="p-6 space-y-4">
         <div className="border-2 border-dashed rounded-lg p-8 text-center">
           <FileSpreadsheet className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
@@ -300,6 +309,12 @@ function ImportPage() {
           ))}
         </div>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="update" className="mt-4">
+          <UpdateLeadsFromExcel />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
