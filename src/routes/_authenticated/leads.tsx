@@ -15,12 +15,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Phone, MessageCircle, Search, Trash2 } from "lucide-react";
+import { Phone, MessageCircle, Search, Trash2, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 import { useStatuses, useTemperatures, useTelecallers } from "@/hooks/use-meta";
 import { useMyProfile } from "@/hooks/use-auth";
-import { followupBadge, statusColor, tempColor, formatDate } from "@/lib/lead-utils";
+import { followupBadge, statusColor, tempColor, formatDate, toTitleCase } from "@/lib/lead-utils";
 import { LeadQuickUpdate } from "@/components/lead-quick-update";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
+import { AssignSelectedDialog } from "@/components/assign-selected-dialog";
 
 export const Route = createFileRoute("/_authenticated/leads")({
   head: () => ({ meta: [{ title: "Leads — Oxo Lead Manager" }] }),
