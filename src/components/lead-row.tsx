@@ -33,8 +33,10 @@ export function LeadRow({ lead }: { lead: Lead }) {
   }, [lead.temperature_name]);
 
   const wa = lead.phone_number?.replace(/\D/g, "");
+  const [showRemarks, setShowRemarks] = useState(false);
   return (
-    <Card className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+    <Card className="p-4 flex flex-col gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <Link to="/leads/$id" params={{ id: String(lead.id) }} className="font-medium hover:underline truncate">
