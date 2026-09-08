@@ -217,7 +217,7 @@ export function UpdateLeadsFromExcel() {
             <tr className="text-left"><th className="p-2">Phone</th><th className="p-2">Status</th><th className="p-2">Calling date</th><th className="p-2">Caller</th></tr>
           </thead>
           <tbody>
-            {rows.slice(0, 100).map((c) => (
+            {rows.map((c) => (
               <tr key={c.rowNo} className="border-t">
                 <td className="p-2">{c.phone}</td>
                 <Cell from={c.existingStatus} to={c.newStatus} changed={c.changed.status} />
@@ -227,7 +227,7 @@ export function UpdateLeadsFromExcel() {
             ))}
           </tbody>
         </table>
-        {rows.length > 100 && <div className="p-2 text-xs text-muted-foreground">Showing first 100 of {rows.length.toLocaleString()}.</div>}
+        {rows.length > 0 && <div className="p-2 text-xs text-muted-foreground">Showing all {rows.length.toLocaleString()} records.</div>}
       </div>
     )
   );
@@ -240,7 +240,7 @@ export function UpdateLeadsFromExcel() {
             <tr className="text-left"><th className="p-2">Row</th><th className="p-2">Phone</th><th className="p-2">Status</th><th className="p-2">Calling date</th><th className="p-2">Caller</th><th className="p-2">Reason</th></tr>
           </thead>
           <tbody>
-            {rows.slice(0, 100).map((r, i) => (
+            {rows.map((r, i) => (
               <tr key={`${r.rowNo}-${i}`} className="border-t">
                 <td className="p-2 text-muted-foreground">{r.rowNo}</td>
                 <td className="p-2">{r.phone || "—"}</td>
@@ -252,7 +252,7 @@ export function UpdateLeadsFromExcel() {
             ))}
           </tbody>
         </table>
-        {rows.length > 100 && <div className="p-2 text-xs text-muted-foreground">Showing first 100 of {rows.length.toLocaleString()}.</div>}
+        {rows.length > 0 && <div className="p-2 text-xs text-muted-foreground">Showing all {rows.length.toLocaleString()} records.</div>}
       </div>
     )
   );
