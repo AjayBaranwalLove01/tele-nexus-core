@@ -136,6 +136,12 @@ export function TelecallerDashboard() {
         </Card>
       </div>
 
+      <StatusDistribution
+        counts={statusCounts}
+        title="My Lead Status Distribution"
+        subtitle="Statuses across all leads assigned to you."
+      />
+
       <div>
         <div className="font-semibold mb-3">My Follow-up Queue</div>
         {mapped.length === 0 ? (
