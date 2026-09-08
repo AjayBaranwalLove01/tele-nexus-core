@@ -19,6 +19,7 @@ import { downloadLeadTemplate } from "@/lib/lead-template";
 import { toTitleCase } from "@/lib/lead-utils";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
 import { useMyProfile } from "@/hooks/use-auth";
+import { useSettings } from "@/hooks/use-meta";
 import { AssignByPhoneDialog } from "@/components/assign-by-phone-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UpdateLeadsFromExcel } from "@/components/update-leads-from-excel";
