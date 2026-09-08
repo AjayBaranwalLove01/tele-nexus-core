@@ -502,6 +502,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_leads_by_ids: {
+        Args: { _ids: number[]; _telecaller: string }
+        Returns: Json
+      }
       assign_leads_by_phone: {
         Args: { _phones: string[]; _telecaller: string }
         Returns: Json
