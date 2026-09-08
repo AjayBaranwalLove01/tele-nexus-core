@@ -64,6 +64,13 @@ function SettingsPage() {
             </div>
           </div>
         </div>
+        <div className="flex items-center gap-2 border-t pt-4">
+          <Switch checked={phone10} onCheckedChange={setPhone10} />
+          <div>
+            <Label>Require 10-digit phone numbers on upload</Label>
+            <p className="text-xs text-muted-foreground">When on, uploaded rows whose phone number does not have exactly 10 digits are rejected.</p>
+          </div>
+        </div>
         <Button onClick={()=>save.mutate()} disabled={save.isPending}>Save</Button>
       </Card>
 
