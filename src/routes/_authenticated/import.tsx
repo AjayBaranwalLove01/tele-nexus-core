@@ -36,6 +36,7 @@ type Preview = {
   valid: Row[];
   duplicates: Row[];
   skipped: Row[];
+  badPhone: Row[];
   total: number;
 };
 
