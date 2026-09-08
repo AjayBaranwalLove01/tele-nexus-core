@@ -67,14 +67,20 @@ export function TelecallerDashboard() {
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return {} as Record<string, number>;
-      const { data, error } = await supabase
-        .from("leads")
-        .select("status_id, lead_statuses(name)")
-        .eq("assigned_to", user.id)
-        .limit(10000);
-      if (error) throw error;
+      const PAGE = 1000;
+      const rows: any[] = [];
+      for (let from = 0; ; from += PAGE) {
+        const { data, error } = await supabase
+          .from("leads")
+          .select("status_id, lead_statuses(name)")
+          .eq("assigned_to", user.id)
+          .range(from, from + PAGE - 1);
+        if (error) throw error;
+        rows.push(...(data ?? []));
+        if (!data || data.length < PAGE) break;
+      }
       const counts: Record<string, number> = {};
-      (data ?? []).forEach((r: any) => {
+      rows.forEach((r: any) => {
         const n = r.lead_statuses?.name ?? "—";
         counts[n] = (counts[n] || 0) + 1;
       });
