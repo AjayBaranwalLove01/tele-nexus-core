@@ -29,15 +29,21 @@ export function TelecallerDashboard() {
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
-      const { data, error } = await supabase
-        .from("leads")
-        .select("id,name,phone_number,follow_up_date,follow_up_time,completed_at,status_id,temperature_id,lead_statuses(name),lead_temperatures(name)")
-        .eq("assigned_to", user.id)
-        .is("completed_at", null)
-        .order("follow_up_date", { ascending: true, nullsFirst: false })
-        .limit(500);
-      if (error) throw error;
-      return (data ?? []) as unknown as LeadRowT[];
+      const PAGE = 1000;
+      const rows: LeadRowT[] = [];
+      for (let from = 0; ; from += PAGE) {
+        const { data, error } = await supabase
+          .from("leads")
+          .select("id,name,phone_number,follow_up_date,follow_up_time,completed_at,status_id,temperature_id,lead_statuses(name),lead_temperatures(name)")
+          .eq("assigned_to", user.id)
+          .is("completed_at", null)
+          .order("follow_up_date", { ascending: true, nullsFirst: false })
+          .range(from, from + PAGE - 1);
+        if (error) throw error;
+        rows.push(...((data ?? []) as unknown as LeadRowT[]));
+        if (!data || data.length < PAGE) break;
+      }
+      return rows;
     },
   });
 
