@@ -79,16 +79,22 @@ export function AdminDashboard() {
   const { data: statusCounts = {} } = useQuery({
     queryKey: ["admin-status-distribution", assignee],
     queryFn: async () => {
-      let q = supabase
-        .from("leads")
-        .select("status_id, lead_statuses(name)")
-        .not("assigned_to", "is", null)
-        .limit(10000);
-      if (assignee !== "all") q = q.eq("assigned_to", assignee);
-      const { data, error } = await q;
-      if (error) throw error;
+      const PAGE = 1000;
+      const rows: any[] = [];
+      for (let from = 0; ; from += PAGE) {
+        let q = supabase
+          .from("leads")
+          .select("status_id, lead_statuses(name)")
+          .not("assigned_to", "is", null)
+          .range(from, from + PAGE - 1);
+        if (assignee !== "all") q = q.eq("assigned_to", assignee);
+        const { data, error } = await q;
+        if (error) throw error;
+        rows.push(...(data ?? []));
+        if (!data || data.length < PAGE) break;
+      }
       const counts: Record<string, number> = {};
-      (data ?? []).forEach((r: any) => {
+      rows.forEach((r: any) => {
         const n = r.lead_statuses?.name ?? "—";
         counts[n] = (counts[n] || 0) + 1;
       });
