@@ -91,6 +91,7 @@ export function TelecallerDashboard() {
     onSuccess: (n) => {
       toast.success(n > 0 ? `Assigned ${n} new leads` : "No leads available in pool");
       qc.invalidateQueries({ queryKey: ["my-leads"] });
+      qc.invalidateQueries({ queryKey: ["my-status-distribution"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
