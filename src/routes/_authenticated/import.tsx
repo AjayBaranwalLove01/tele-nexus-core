@@ -303,6 +303,7 @@ function ImportPage() {
           <PreviewTable rows={preview.valid} title="Will be inserted" />
           <PreviewTable rows={preview.duplicates} title="Duplicates (skipped)" />
           <PreviewTable rows={preview.skipped} title="Skipped — missing name or phone" />
+          {enforce10 && <PreviewTable rows={preview.badPhone} title="Rejected — phone number is not 10 digits" />}
         </Card>
       )}
 
