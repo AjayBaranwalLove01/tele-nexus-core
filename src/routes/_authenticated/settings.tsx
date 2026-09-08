@@ -22,16 +22,21 @@ function SettingsPage() {
   const { data: temps } = useTemperatures();
   const [perCaller, setPerCaller] = useState(50);
   const [autoRefill, setAutoRefill] = useState(false);
+  const [phone10, setPhone10] = useState(true);
 
   useEffect(() => {
-    if (s) { setPerCaller(s.leads_per_telecaller); setAutoRefill(s.auto_refill); }
+    if (s) {
+      setPerCaller(s.leads_per_telecaller);
+      setAutoRefill(s.auto_refill);
+      setPhone10((s as any).enforce_10_digit_phone ?? true);
+    }
   }, [s]);
 
   const save = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from("crm_settings").update({
-        leads_per_telecaller: perCaller, auto_refill: autoRefill,
-      }).eq("id", 1);
+        leads_per_telecaller: perCaller, auto_refill: autoRefill, enforce_10_digit_phone: phone10,
+      } as any).eq("id", 1);
       if (error) throw error;
     },
     onSuccess: () => { toast.success("Settings saved"); qc.invalidateQueries({ queryKey: ["crm_settings"] }); },
