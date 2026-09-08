@@ -1,0 +1,1 @@
+ALTER TABLE public.crm_settings ADD COLUMN IF NOT EXISTS enforce_10_digit_phone boolean NOT NULL DEFAULT true;

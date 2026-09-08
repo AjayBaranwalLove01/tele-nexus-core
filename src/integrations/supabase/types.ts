@@ -89,18 +89,21 @@ export type Database = {
       crm_settings: {
         Row: {
           auto_refill: boolean
+          enforce_10_digit_phone: boolean
           id: number
           leads_per_telecaller: number
           updated_at: string
         }
         Insert: {
           auto_refill?: boolean
+          enforce_10_digit_phone?: boolean
           id?: number
           leads_per_telecaller?: number
           updated_at?: string
         }
         Update: {
           auto_refill?: boolean
+          enforce_10_digit_phone?: boolean
           id?: number
           leads_per_telecaller?: number
           updated_at?: string
