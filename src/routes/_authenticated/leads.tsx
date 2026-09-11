@@ -285,7 +285,10 @@ function LeadsPage() {
                       />
                     </th>
                   )}
-                  <th className="p-3">Received</th>
+                  <th className="p-3">
+                    <div>Received</div>
+                    <div className="text-xs font-normal text-muted-foreground">Calling Date</div>
+                  </th>
                   <th className="p-3">Name</th>
                   <th className="p-3">Phone</th>
                   <th className="p-3">Email</th>
@@ -314,7 +317,10 @@ function LeadsPage() {
                           />
                         </td>
                       )}
-                      <td className="p-3 text-muted-foreground whitespace-nowrap">{formatDate(l.lead_received_date)}</td>
+                      <td className="p-3 text-muted-foreground whitespace-nowrap">
+                        <div>{formatDate(l.lead_received_date)}</div>
+                        <div className="text-xs text-muted-foreground/70">{formatDate(l.call_date)}</div>
+                      </td>
                       <td className="p-3">
                         <Link to="/leads/$id" params={{id:String(l.id)}} className="font-medium hover:underline">
                           {l.name || "Unnamed"}
