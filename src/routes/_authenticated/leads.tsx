@@ -248,6 +248,26 @@ function LeadsPage() {
             </SelectContent>
           </Select>
         )}
+        <Select value={callDateFilter} onValueChange={(v) => { setCallDateFilter(v); resetPage(); }}>
+          <SelectTrigger className="w-[150px]"><SelectValue placeholder="Call date"/></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All call dates</SelectItem>
+            <SelectItem value="today">Today</SelectItem>
+            <SelectItem value="yesterday">Yesterday</SelectItem>
+            <SelectItem value="week">Last 7 days</SelectItem>
+            <SelectItem value="month">Last 30 days</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={(v) => { setSortBy(v); resetPage(); }}>
+          <SelectTrigger className="w-[170px]"><SelectValue placeholder="Sort by"/></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="updated_at:desc">Updated (newest)</SelectItem>
+            <SelectItem value="call_date:desc">Call date (newest)</SelectItem>
+            <SelectItem value="call_date:asc">Call date (oldest)</SelectItem>
+            <SelectItem value="follow_up_date:asc">Follow-up (nearest)</SelectItem>
+            <SelectItem value="lead_received_date:desc">Received (newest)</SelectItem>
+          </SelectContent>
+        </Select>
       </Card>
 
       {isLoading ? <Skeleton className="h-96"/> : (
