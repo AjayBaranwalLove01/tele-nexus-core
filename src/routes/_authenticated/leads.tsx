@@ -38,20 +38,25 @@ function LeadsPage() {
   const [tempId, setTempId] = useState<string>("all");
   const [scope, setScope] = useState<string>("all");
   const [assignedTo, setAssignedTo] = useState<string>("all");
+  const [callDateFilter, setCallDateFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("updated_at:desc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [gotoValue, setGotoValue] = useState("");
 
   const { data: telecallers } = useTelecallers();
 
+  const sortColumn = sortBy.split(":")[0] || "updated_at";
+  const sortAsc = sortBy.split(":")[1] === "asc";
+
   const resetPage = () => setPage(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["leads-list", search, statusId, tempId, scope, assignedTo, page, pageSize, me?.profile?.id],
+    queryKey: ["leads-list", search, statusId, tempId, scope, assignedTo, callDateFilter, sortBy, page, pageSize, me?.profile?.id],
     queryFn: async () => {
       let q = supabase.from("leads")
-        .select("id,name,phone_number,email,city,lead_received_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)", { count: "exact" })
-        .order("updated_at", { ascending: false })
+        .select("id,name,phone_number,email,city,lead_received_date,call_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)", { count: "exact" })
+        .order(sortColumn, { ascending: sortAsc, nullsFirst: false })
         .range((page - 1) * pageSize, page * pageSize - 1);
       if (statusId !== "all") q = q.eq("status_id", statusId);
       if (tempId !== "all") q = q.eq("temperature_id", tempId);
@@ -59,6 +64,20 @@ function LeadsPage() {
       if (scope === "mine" && me?.profile?.id) q = q.eq("assigned_to", me.profile.id);
       if (scope === "unassigned") q = q.is("assigned_to", null);
       if (search.trim()) q = q.or(`name.ilike.%${search}%,phone_number.ilike.%${search}%`);
+      if (callDateFilter !== "all") {
+        const today = new Date();
+        const toIso = (d: Date) => d.toISOString().slice(0, 10);
+        if (callDateFilter === "today") q = q.eq("call_date", toIso(today));
+        if (callDateFilter === "yesterday") {
+          const d = new Date(today); d.setDate(d.getDate() - 1); q = q.eq("call_date", toIso(d));
+        }
+        if (callDateFilter === "week") {
+          const d = new Date(today); d.setDate(d.getDate() - 6); q = q.gte("call_date", toIso(d)).lte("call_date", toIso(today));
+        }
+        if (callDateFilter === "month") {
+          const d = new Date(today); d.setDate(d.getDate() - 29); q = q.gte("call_date", toIso(d)).lte("call_date", toIso(today));
+        }
+      }
       const { data, error, count } = await q;
       if (error) throw error;
       return { rows: data ?? [], total: count ?? 0 };
@@ -104,6 +123,20 @@ function LeadsPage() {
         if (scope === "mine" && me?.profile?.id) q = q.eq("assigned_to", me.profile.id);
         if (scope === "unassigned") q = q.is("assigned_to", null);
         if (search.trim()) q = q.or(`name.ilike.%${search}%,phone_number.ilike.%${search}%`);
+        if (callDateFilter !== "all") {
+          const today = new Date();
+          const toIso = (d: Date) => d.toISOString().slice(0, 10);
+          if (callDateFilter === "today") q = q.eq("call_date", toIso(today));
+          if (callDateFilter === "yesterday") {
+            const d = new Date(today); d.setDate(d.getDate() - 1); q = q.eq("call_date", toIso(d));
+          }
+          if (callDateFilter === "week") {
+            const d = new Date(today); d.setDate(d.getDate() - 6); q = q.gte("call_date", toIso(d)).lte("call_date", toIso(today));
+          }
+          if (callDateFilter === "month") {
+            const d = new Date(today); d.setDate(d.getDate() - 29); q = q.gte("call_date", toIso(d)).lte("call_date", toIso(today));
+          }
+        }
         const { data, error } = await q;
         if (error) throw error;
         rows.push(...(data ?? []));
@@ -215,6 +248,26 @@ function LeadsPage() {
             </SelectContent>
           </Select>
         )}
+        <Select value={callDateFilter} onValueChange={(v) => { setCallDateFilter(v); resetPage(); }}>
+          <SelectTrigger className="w-[150px]"><SelectValue placeholder="Call date"/></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All call dates</SelectItem>
+            <SelectItem value="today">Today</SelectItem>
+            <SelectItem value="yesterday">Yesterday</SelectItem>
+            <SelectItem value="week">Last 7 days</SelectItem>
+            <SelectItem value="month">Last 30 days</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={(v) => { setSortBy(v); resetPage(); }}>
+          <SelectTrigger className="w-[170px]"><SelectValue placeholder="Sort by"/></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="updated_at:desc">Updated (newest)</SelectItem>
+            <SelectItem value="call_date:desc">Call date (newest)</SelectItem>
+            <SelectItem value="call_date:asc">Call date (oldest)</SelectItem>
+            <SelectItem value="follow_up_date:asc">Follow-up (nearest)</SelectItem>
+            <SelectItem value="lead_received_date:desc">Received (newest)</SelectItem>
+          </SelectContent>
+        </Select>
       </Card>
 
       {isLoading ? <Skeleton className="h-96"/> : (
