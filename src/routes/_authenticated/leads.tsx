@@ -52,11 +52,11 @@ function LeadsPage() {
   const resetPage = () => setPage(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["leads-list", search, statusId, tempId, scope, assignedTo, page, pageSize, me?.profile?.id],
+    queryKey: ["leads-list", search, statusId, tempId, scope, assignedTo, callDateFilter, sortBy, page, pageSize, me?.profile?.id],
     queryFn: async () => {
       let q = supabase.from("leads")
-        .select("id,name,phone_number,email,city,lead_received_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)", { count: "exact" })
-        .order("updated_at", { ascending: false })
+        .select("id,name,phone_number,email,city,lead_received_date,call_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)", { count: "exact" })
+        .order(sortColumn, { ascending: sortAsc, nullsFirst: false })
         .range((page - 1) * pageSize, page * pageSize - 1);
       if (statusId !== "all") q = q.eq("status_id", statusId);
       if (tempId !== "all") q = q.eq("temperature_id", tempId);
@@ -64,6 +64,20 @@ function LeadsPage() {
       if (scope === "mine" && me?.profile?.id) q = q.eq("assigned_to", me.profile.id);
       if (scope === "unassigned") q = q.is("assigned_to", null);
       if (search.trim()) q = q.or(`name.ilike.%${search}%,phone_number.ilike.%${search}%`);
+      if (callDateFilter !== "all") {
+        const today = new Date();
+        const toIso = (d: Date) => d.toISOString().slice(0, 10);
+        if (callDateFilter === "today") q = q.eq("call_date", toIso(today));
+        if (callDateFilter === "yesterday") {
+          const d = new Date(today); d.setDate(d.getDate() - 1); q = q.eq("call_date", toIso(d));
+        }
+        if (callDateFilter === "week") {
+          const d = new Date(today); d.setDate(d.getDate() - 6); q = q.gte("call_date", toIso(d)).lte("call_date", toIso(today));
+        }
+        if (callDateFilter === "month") {
+          const d = new Date(today); d.setDate(d.getDate() - 29); q = q.gte("call_date", toIso(d)).lte("call_date", toIso(today));
+        }
+      }
       const { data, error, count } = await q;
       if (error) throw error;
       return { rows: data ?? [], total: count ?? 0 };
