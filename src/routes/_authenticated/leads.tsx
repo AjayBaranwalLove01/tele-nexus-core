@@ -285,7 +285,10 @@ function LeadsPage() {
                       />
                     </th>
                   )}
-                  <th className="p-3">Received</th>
+                  <th className="p-3">
+                    <div>Received</div>
+                    <div className="text-xs font-normal text-muted-foreground">Calling Date</div>
+                  </th>
                   <th className="p-3">Name</th>
                   <th className="p-3">Phone</th>
                   <th className="p-3">Email</th>
