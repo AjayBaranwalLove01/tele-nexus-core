@@ -38,11 +38,16 @@ function LeadsPage() {
   const [tempId, setTempId] = useState<string>("all");
   const [scope, setScope] = useState<string>("all");
   const [assignedTo, setAssignedTo] = useState<string>("all");
+  const [callDateFilter, setCallDateFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("updated_at:desc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [gotoValue, setGotoValue] = useState("");
 
   const { data: telecallers } = useTelecallers();
+
+  const sortColumn = sortBy.split(":")[0] || "updated_at";
+  const sortAsc = sortBy.split(":")[1] === "asc";
 
   const resetPage = () => setPage(1);
 
