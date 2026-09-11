@@ -123,6 +123,20 @@ function LeadsPage() {
         if (scope === "mine" && me?.profile?.id) q = q.eq("assigned_to", me.profile.id);
         if (scope === "unassigned") q = q.is("assigned_to", null);
         if (search.trim()) q = q.or(`name.ilike.%${search}%,phone_number.ilike.%${search}%`);
+        if (callDateFilter !== "all") {
+          const today = new Date();
+          const toIso = (d: Date) => d.toISOString().slice(0, 10);
+          if (callDateFilter === "today") q = q.eq("call_date", toIso(today));
+          if (callDateFilter === "yesterday") {
+            const d = new Date(today); d.setDate(d.getDate() - 1); q = q.eq("call_date", toIso(d));
+          }
+          if (callDateFilter === "week") {
+            const d = new Date(today); d.setDate(d.getDate() - 6); q = q.gte("call_date", toIso(d)).lte("call_date", toIso(today));
+          }
+          if (callDateFilter === "month") {
+            const d = new Date(today); d.setDate(d.getDate() - 29); q = q.gte("call_date", toIso(d)).lte("call_date", toIso(today));
+          }
+        }
         const { data, error } = await q;
         if (error) throw error;
         rows.push(...(data ?? []));
