@@ -14,6 +14,7 @@ import { Phone, MessageCircle, ArrowLeft, Save } from "lucide-react";
 import { useStatuses, useTemperatures } from "@/hooks/use-meta";
 import { statusColor, tempColor, formatDate } from "@/lib/lead-utils";
 import { toast } from "sonner";
+import { LeadHistoryTimeline } from "@/components/lead-history-dialog";
 
 export const Route = createFileRoute("/_authenticated/leads/$id")({
   head: () => ({ meta: [{ title: "Lead — Oxo Lead Manager" }] }),
