@@ -8,6 +8,13 @@
       "when": 1789299226526,
       "tag": "0000_lead_activity_history",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789299282677,
+      "tag": "0001_productivity_reports",
+      "breakpoints": true
     }
   ]
 }

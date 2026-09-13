@@ -616,9 +616,65 @@ export type Database = {
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_approved: { Args: { _user_id: string }; Returns: boolean }
+      lead_journey: { Args: { _lead_id: number }; Returns: Json }
+      leads_worked: {
+        Args: { _from: string; _telecaller?: string; _to: string }
+        Returns: {
+          activity_count: number
+          assigned_name: string
+          city: string
+          current_status: string
+          first_activity: string
+          last_activity: string
+          latest_remark: string
+          lead_id: number
+          name: string
+          phone_number: string
+          status_on_date: string
+        }[]
+      }
+      productivity_daily: {
+        Args: { _from: string; _telecaller?: string; _to: string }
+        Returns: {
+          activities: number
+          activity_date: string
+          calls: number
+          completed: number
+          converted: number
+          followups: number
+          remarks: number
+          status_changes: number
+          telecaller_id: string
+          telecaller_name: string
+          unique_leads: number
+        }[]
+      }
+      productivity_summary: {
+        Args: { _from: string; _telecaller?: string; _to: string }
+        Returns: {
+          activities: number
+          calls: number
+          completed: number
+          converted: number
+          currently_assigned: number
+          followups: number
+          status_changes: number
+          telecaller_id: string
+          telecaller_name: string
+          unique_leads: number
+        }[]
+      }
       profile_name: { Args: { _id: string }; Returns: string }
       recall_unused_leads: { Args: { _telecaller?: string }; Returns: number }
       status_name: { Args: { _id: string }; Returns: string }
+      status_transitions: {
+        Args: { _from: string; _telecaller?: string; _to: string }
+        Returns: {
+          new_status: string
+          previous_status: string
+          transitions: number
+        }[]
+      }
       title_case: { Args: { _txt: string }; Returns: string }
     }
     Enums: {
