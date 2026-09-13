@@ -9,6 +9,7 @@ export const MODULES: Record<string, string> = {
   "/telecallers": "Telecallers",
   "/settings": "Settings",
   "/activity": "Activity Monitoring",
+  "/productivity": "Telecaller Productivity",
   "/auth": "Authentication",
   "/": "Home",
 };
