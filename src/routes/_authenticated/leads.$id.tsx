@@ -148,6 +148,11 @@ function LeadDetail() {
       </Card>
 
       <Card className="p-5">
+        <div className="font-semibold mb-3">Lead History</div>
+        <LeadHistoryTimeline leadId={leadId} />
+      </Card>
+
+      <Card className="p-5">
         <div className="font-semibold mb-3">Activity Timeline</div>
         <div className="space-y-3">
           {remarks?.length === 0 && <div className="text-sm text-muted-foreground">No remarks yet.</div>}
