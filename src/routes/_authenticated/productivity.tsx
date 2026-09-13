@@ -79,9 +79,9 @@ function ProductivityPage() {
   const [custom, setCustom] = useState(presetRange("30"));
   const [telecaller, setTelecaller] = useState("all");
   const range = preset === "custom" ? custom : presetRange(preset);
-  const tcParam = isAdmin && telecaller !== "all" ? telecaller : null;
+  const tcParam = isAdmin && telecaller !== "all" ? telecaller : undefined;
 
-  const [drill, setDrill] = useState<{ from: string; to: string; tid: string | null; label: string } | null>(null);
+  const [drill, setDrill] = useState<{ from: string; to: string; tid?: string; label: string } | null>(null);
   const [historyLead, setHistoryLead] = useState<{ id: number; name: string | null } | null>(null);
 
   const daily = useQuery({
@@ -445,7 +445,7 @@ type WorkedRow = {
 function LeadsWorkedDialog({
   drill, onClose, onOpenHistory,
 }: {
-  drill: { from: string; to: string; tid: string | null; label: string } | null;
+  drill: { from: string; to: string; tid?: string; label: string } | null;
   onClose: () => void;
   onOpenHistory: (l: { id: number; name: string | null }) => void;
 }) {
