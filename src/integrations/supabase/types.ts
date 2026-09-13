@@ -158,6 +158,89 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_activity_history: {
+        Row: {
+          activity_date: string
+          activity_source: string
+          activity_type: string
+          call_date: string | null
+          call_outcome: string | null
+          created_at: string
+          follow_up_date: string | null
+          id: number
+          import_batch_id: string | null
+          lead_id: number
+          metadata: Json | null
+          new_assigned_name: string | null
+          new_assigned_to: string | null
+          new_status: string | null
+          performed_by: string | null
+          performed_by_name: string | null
+          previous_assigned_name: string | null
+          previous_assigned_to: string | null
+          previous_status: string | null
+          remarks: string | null
+          telecaller_id: string | null
+          telecaller_name: string | null
+        }
+        Insert: {
+          activity_date?: string
+          activity_source?: string
+          activity_type: string
+          call_date?: string | null
+          call_outcome?: string | null
+          created_at?: string
+          follow_up_date?: string | null
+          id?: number
+          import_batch_id?: string | null
+          lead_id: number
+          metadata?: Json | null
+          new_assigned_name?: string | null
+          new_assigned_to?: string | null
+          new_status?: string | null
+          performed_by?: string | null
+          performed_by_name?: string | null
+          previous_assigned_name?: string | null
+          previous_assigned_to?: string | null
+          previous_status?: string | null
+          remarks?: string | null
+          telecaller_id?: string | null
+          telecaller_name?: string | null
+        }
+        Update: {
+          activity_date?: string
+          activity_source?: string
+          activity_type?: string
+          call_date?: string | null
+          call_outcome?: string | null
+          created_at?: string
+          follow_up_date?: string | null
+          id?: number
+          import_batch_id?: string | null
+          lead_id?: number
+          metadata?: Json | null
+          new_assigned_name?: string | null
+          new_assigned_to?: string | null
+          new_status?: string | null
+          performed_by?: string | null
+          performed_by_name?: string | null
+          previous_assigned_name?: string | null
+          previous_assigned_to?: string | null
+          previous_status?: string | null
+          remarks?: string | null
+          telecaller_id?: string | null
+          telecaller_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activity_history_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_remarks: {
         Row: {
           created_at: string
@@ -533,7 +616,9 @@ export type Database = {
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_approved: { Args: { _user_id: string }; Returns: boolean }
+      profile_name: { Args: { _id: string }; Returns: string }
       recall_unused_leads: { Args: { _telecaller?: string }; Returns: number }
+      status_name: { Args: { _id: string }; Returns: string }
       title_case: { Args: { _txt: string }; Returns: string }
     }
     Enums: {
