@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   LayoutDashboard, Users, Upload, ListTodo, CalendarClock,
-  Settings, LogOut, Phone, Menu, Activity, ShieldCheck,
+  Settings, LogOut, Phone, Menu, Activity, ShieldCheck, BarChart3,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -32,6 +32,7 @@ function NavItems() {
     { to: "/import", label: "Import Leads", icon: Upload, show: isAdmin },
     { to: "/telecallers", label: "Telecallers", icon: Users, show: isAdmin },
     { to: "/users", label: "User Access", icon: ShieldCheck, show: isAdmin },
+    { to: "/productivity", label: "Productivity", icon: BarChart3, show: true },
     { to: "/activity", label: isAdmin ? "Activity Monitor" : "My Activity", icon: Activity, show: true },
     { to: "/settings", label: "Settings", icon: Settings, show: isAdmin },
   ];

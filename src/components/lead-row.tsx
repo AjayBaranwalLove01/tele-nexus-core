@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { followupBadge, statusColor, tempColor, formatDate } from "@/lib/lead-utils";
 import { Link } from "@tanstack/react-router";
 import { LeadQuickUpdate } from "@/components/lead-quick-update";
+import { LeadHistoryDialog } from "@/components/lead-history-dialog";
 
 type Lead = {
   id: number;
@@ -67,6 +68,7 @@ export function LeadRow({ lead }: { lead: Lead }) {
           </>
         )}
         <LeadQuickUpdate leadId={lead.id} leadName={lead.name} />
+        <LeadHistoryDialog leadId={lead.id} leadName={lead.name} />
         <Button
           size="sm"
           variant="ghost"

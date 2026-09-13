@@ -14,6 +14,7 @@ import { Phone, MessageCircle, ArrowLeft, Save } from "lucide-react";
 import { useStatuses, useTemperatures } from "@/hooks/use-meta";
 import { statusColor, tempColor, formatDate } from "@/lib/lead-utils";
 import { toast } from "sonner";
+import { LeadHistoryTimeline } from "@/components/lead-history-dialog";
 
 export const Route = createFileRoute("/_authenticated/leads/$id")({
   head: () => ({ meta: [{ title: "Lead — Oxo Lead Manager" }] }),
@@ -145,6 +146,11 @@ function LeadDetail() {
         </div>
         <div><Label>Add remark</Label><Textarea value={remark} onChange={(e)=>setRemark(e.target.value)} rows={3} placeholder="What happened on this call?"/></div>
         <Button onClick={()=>save.mutate()} disabled={save.isPending}><Save className="h-4 w-4"/>Save</Button>
+      </Card>
+
+      <Card className="p-5">
+        <div className="font-semibold mb-3">Lead History</div>
+        <LeadHistoryTimeline leadId={leadId} />
       </Card>
 
       <Card className="p-5">

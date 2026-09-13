@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedTelecallersRouteImport } from './routes/_authenticated/telecallers'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedProductivityRouteImport } from './routes/_authenticated/productivity'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
 import { Route as AuthenticatedImportRouteImport } from './routes/_authenticated/import'
 import { Route as AuthenticatedFollowupsRouteImport } from './routes/_authenticated/followups'
@@ -58,6 +59,12 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProductivityRoute =
+  AuthenticatedProductivityRouteImport.update({
+    id: '/productivity',
+    path: '/productivity',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLeadsRoute = AuthenticatedLeadsRouteImport.update({
   id: '/leads',
   path: '/leads',
@@ -98,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/followups': typeof AuthenticatedFollowupsRoute
   '/import': typeof AuthenticatedImportRoute
   '/leads': typeof AuthenticatedLeadsRouteWithChildren
+  '/productivity': typeof AuthenticatedProductivityRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/telecallers': typeof AuthenticatedTelecallersRoute
   '/users': typeof AuthenticatedUsersRoute
@@ -112,6 +120,7 @@ export interface FileRoutesByTo {
   '/followups': typeof AuthenticatedFollowupsRoute
   '/import': typeof AuthenticatedImportRoute
   '/leads': typeof AuthenticatedLeadsRouteWithChildren
+  '/productivity': typeof AuthenticatedProductivityRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/telecallers': typeof AuthenticatedTelecallersRoute
   '/users': typeof AuthenticatedUsersRoute
@@ -128,6 +137,7 @@ export interface FileRoutesById {
   '/_authenticated/followups': typeof AuthenticatedFollowupsRoute
   '/_authenticated/import': typeof AuthenticatedImportRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRouteWithChildren
+  '/_authenticated/productivity': typeof AuthenticatedProductivityRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/telecallers': typeof AuthenticatedTelecallersRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/followups'
     | '/import'
     | '/leads'
+    | '/productivity'
     | '/settings'
     | '/telecallers'
     | '/users'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
     | '/followups'
     | '/import'
     | '/leads'
+    | '/productivity'
     | '/settings'
     | '/telecallers'
     | '/users'
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
     | '/_authenticated/followups'
     | '/_authenticated/import'
     | '/_authenticated/leads'
+    | '/_authenticated/productivity'
     | '/_authenticated/settings'
     | '/_authenticated/telecallers'
     | '/_authenticated/users'
@@ -237,6 +250,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/productivity': {
+      id: '/_authenticated/productivity'
+      path: '/productivity'
+      fullPath: '/productivity'
+      preLoaderRoute: typeof AuthenticatedProductivityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/leads': {
       id: '/_authenticated/leads'
       path: '/leads'
@@ -299,6 +319,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFollowupsRoute: typeof AuthenticatedFollowupsRoute
   AuthenticatedImportRoute: typeof AuthenticatedImportRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRouteWithChildren
+  AuthenticatedProductivityRoute: typeof AuthenticatedProductivityRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTelecallersRoute: typeof AuthenticatedTelecallersRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
@@ -310,6 +331,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFollowupsRoute: AuthenticatedFollowupsRoute,
   AuthenticatedImportRoute: AuthenticatedImportRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRouteWithChildren,
+  AuthenticatedProductivityRoute: AuthenticatedProductivityRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTelecallersRoute: AuthenticatedTelecallersRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
