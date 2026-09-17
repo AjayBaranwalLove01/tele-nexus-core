@@ -21,6 +21,7 @@ export function AddLeadDialog({ trigger }: { trigger?: React.ReactNode }) {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [city, setCity] = useState("");
+  const [source, setSource] = useState("");
   const [receivedDate, setReceivedDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [statusId, setStatusId] = useState("default");
   const [tempId, setTempId] = useState("none");
@@ -42,8 +43,17 @@ export function AddLeadDialog({ trigger }: { trigger?: React.ReactNode }) {
     },
   });
 
+  const { data: existingSources } = useQuery({
+    queryKey: ["lead-sources"],
+    enabled: open,
+    queryFn: async () => {
+      const { data } = await supabase.from("leads").select("source").not("source", "is", null).limit(5000);
+      return [...new Set((data ?? []).map((r: any) => r.source as string).filter(Boolean))].sort();
+    },
+  });
+
   const reset = () => {
-    setName(""); setPhone(""); setEmail(""); setCity("");
+    setName(""); setPhone(""); setEmail(""); setCity(""); setSource("");
     setReceivedDate(new Date().toISOString().slice(0, 10));
     setStatusId("default"); setTempId("none"); setAssignee("none"); setFollowUp("");
   };
@@ -71,6 +81,7 @@ export function AddLeadDialog({ trigger }: { trigger?: React.ReactNode }) {
         phone_number: phone.trim(),
         email: email.trim() || null,
         city: toTitleCase(city) || null,
+        source: source.trim() || null,
         lead_received_date: receivedDate || new Date().toISOString().slice(0, 10),
         status_id: statusId === "default" ? defaultStatus : statusId,
         temperature_id: tempId === "none" ? null : tempId,
@@ -81,6 +92,7 @@ export function AddLeadDialog({ trigger }: { trigger?: React.ReactNode }) {
       if (error) throw error;
       toast.success("Lead added");
       qc.invalidateQueries({ queryKey: ["leads-list"] });
+      qc.invalidateQueries({ queryKey: ["lead-sources"] });
       qc.invalidateQueries({ queryKey: ["admin-dashboard"] });
       reset();
       setOpen(false);
@@ -128,6 +140,20 @@ export function AddLeadDialog({ trigger }: { trigger?: React.ReactNode }) {
               <Label htmlFor="lead-city">City</Label>
               <Input id="lead-city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Mumbai" maxLength={100} />
             </div>
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="lead-source">Source</Label>
+            <Input
+              id="lead-source"
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              placeholder="e.g. Old Google Lead"
+              maxLength={120}
+              list="lead-source-options"
+            />
+            <datalist id="lead-source-options">
+              {existingSources?.map((s) => <option key={s} value={s} />)}
+            </datalist>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="grid gap-1.5">
