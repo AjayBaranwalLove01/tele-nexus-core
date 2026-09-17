@@ -41,18 +41,18 @@ export function AdminDashboard() {
         total, assigned, unassigned, telecallerCount, converted, hot,
         overdue, todayFU, tomorrowFU, byTemp,
       ] = await Promise.all([
-        supabase.from("leads").select("*", { count: "exact", head: true }),
-        supabase.from("leads").select("*", { count: "exact", head: true }).not("assigned_to", "is", null),
-        supabase.from("leads").select("*", { count: "exact", head: true }).is("assigned_to", null),
+        supabase.from("leads").select("*", { count: "exact", head: true }).is("archived_at", null),
+        supabase.from("leads").select("*", { count: "exact", head: true }).is("archived_at", null).not("assigned_to", "is", null),
+        supabase.from("leads").select("*", { count: "exact", head: true }).is("archived_at", null).is("assigned_to", null),
         supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "telecaller"),
         supabase.from("leads").select("status_id, lead_statuses!inner(name)", { count: "exact", head: true })
-          .eq("lead_statuses.name", "Converted"),
+          .is("archived_at", null).eq("lead_statuses.name", "Converted"),
         supabase.from("leads").select("temperature_id, lead_temperatures!inner(name)", { count: "exact", head: true })
-          .eq("lead_temperatures.name", "Hot"),
-        supabase.from("leads").select("*", { count: "exact", head: true }).lt("follow_up_date", today).is("completed_at", null).not("follow_up_date", "is", null),
-        supabase.from("leads").select("*", { count: "exact", head: true }).eq("follow_up_date", today).is("completed_at", null),
-        supabase.from("leads").select("*", { count: "exact", head: true }).eq("follow_up_date", tomorrow).is("completed_at", null),
-        supabase.from("leads").select("temperature_id, lead_temperatures(name)").limit(5000),
+          .is("archived_at", null).eq("lead_temperatures.name", "Hot"),
+        supabase.from("leads").select("*", { count: "exact", head: true }).is("archived_at", null).lt("follow_up_date", today).is("completed_at", null).not("follow_up_date", "is", null),
+        supabase.from("leads").select("*", { count: "exact", head: true }).is("archived_at", null).eq("follow_up_date", today).is("completed_at", null),
+        supabase.from("leads").select("*", { count: "exact", head: true }).is("archived_at", null).eq("follow_up_date", tomorrow).is("completed_at", null),
+        supabase.from("leads").select("temperature_id, lead_temperatures(name)").is("archived_at", null).limit(5000),
       ]);
 
       const tempCounts: Record<string, number> = {};
@@ -85,6 +85,7 @@ export function AdminDashboard() {
         let q = supabase
           .from("leads")
           .select("status_id, lead_statuses(name)")
+          .is("archived_at", null)
           .not("assigned_to", "is", null)
           .range(from, from + PAGE - 1);
         if (assignee !== "all") q = q.eq("assigned_to", assignee);

@@ -26,6 +26,7 @@ function FollowupsPage() {
       let q = supabase.from("leads")
         .select("id,name,phone_number,follow_up_date,follow_up_time,status_id,temperature_id,assigned_to,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)")
         .is("completed_at", null)
+        .is("archived_at", null)
         .not("follow_up_date", "is", null)
         .order("follow_up_date", { ascending: true })
         .limit(500);

@@ -44,8 +44,8 @@ function TelecallersPage() {
       const { data: profs } = await supabase.from("profiles").select("*").in("id", ids);
       const stats = await Promise.all(ids.map(async (uid) => {
         const [assigned, completed] = await Promise.all([
-          supabase.from("leads").select("*", { count: "exact", head: true }).eq("assigned_to", uid).is("completed_at", null),
-          supabase.from("leads").select("*", { count: "exact", head: true }).eq("assigned_to", uid).not("completed_at", "is", null),
+          supabase.from("leads").select("*", { count: "exact", head: true }).eq("assigned_to", uid).is("archived_at", null).is("completed_at", null),
+          supabase.from("leads").select("*", { count: "exact", head: true }).eq("assigned_to", uid).is("archived_at", null).not("completed_at", "is", null),
         ]);
         return { uid, active: assigned.count ?? 0, completed: completed.count ?? 0 };
       }));
