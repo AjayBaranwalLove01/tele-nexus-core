@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
-import { PhoneSearch } from "lucide-react";
+import { Search } from "lucide-react";
 import { ArchiveLeadsDialog } from "@/components/archive-leads-dialog";
 import { formatDate, statusColor } from "@/lib/lead-utils";
 
@@ -50,7 +50,7 @@ export function ArchiveByPhoneDialog() {
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) reset(); }}>
       <DialogTrigger asChild>
-        <Button variant="outline"><PhoneSearch className="h-4 w-4" />Archive by Phone</Button>
+        <Button variant="outline"><Search className="h-4 w-4" />Archive by Phone</Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
