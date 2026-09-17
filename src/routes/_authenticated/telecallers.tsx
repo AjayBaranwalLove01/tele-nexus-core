@@ -21,6 +21,7 @@ import { RotateCcw, Send, UserPlus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useSettings } from "@/hooks/use-meta";
 import { createTelecaller, deleteTelecaller } from "@/lib/telecallers.functions";
+import { LeadRequestsPanel } from "@/components/lead-requests-panel";
 
 export const Route = createFileRoute("/_authenticated/telecallers")({
   head: () => ({ meta: [{ title: "Telecallers — Oxo Lead Manager" }] }),
@@ -112,6 +113,8 @@ function TelecallersPage() {
         </div>
         <AddTelecallerDialog onCreate={(v) => createMut.mutate(v)} pending={createMut.isPending} />
       </div>
+
+      <LeadRequestsPanel />
 
       <Card className="p-5">
         <div className="font-semibold mb-3 flex items-center gap-2"><Send className="h-4 w-4"/>Bulk Distribute</div>

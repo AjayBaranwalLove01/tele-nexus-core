@@ -4,7 +4,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LeadRow } from "@/components/lead-row";
-import { Plus, CheckCircle2, Flame, CalendarClock, CalendarX } from "lucide-react";
+import { Plus, CheckCircle2, Flame, CalendarClock, CalendarX, Clock } from "lucide-react";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { StatusDistribution } from "@/components/status-distribution";
 
@@ -94,16 +100,33 @@ export function TelecallerDashboard() {
     },
   });
 
-  const getMore = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.rpc("get_more_leads");
+  const { data: myRequests } = useQuery({
+    queryKey: ["my-lead-requests"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("lead_requests")
+        .select("*")
+        .eq("telecaller_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
       if (error) throw error;
-      return data as number;
+      return data ?? [];
     },
-    onSuccess: (n) => {
-      toast.success(n > 0 ? `Assigned ${n} new leads` : "No leads available in pool");
-      qc.invalidateQueries({ queryKey: ["my-leads"] });
-      qc.invalidateQueries({ queryKey: ["my-status-distribution"] });
+  });
+
+  const pendingRequest = (myRequests ?? []).find((r: any) => r.status === "pending");
+  const lastDecision = (myRequests ?? []).find((r: any) => r.status !== "pending");
+
+  const requestMore = useMutation({
+    mutationFn: async (count: number) => {
+      const { error } = await supabase.rpc("request_more_leads", { _count: count });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Request sent to admin for approval");
+      qc.invalidateQueries({ queryKey: ["my-lead-requests"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -124,10 +147,32 @@ export function TelecallerDashboard() {
           <h1 className="text-2xl font-bold tracking-tight">My Workspace</h1>
           <p className="text-sm text-muted-foreground">Your follow-up queue, prioritized.</p>
         </div>
-        <Button onClick={() => getMore.mutate()} disabled={getMore.isPending} size="lg">
-          <Plus className="h-4 w-4" /> Get More Leads
-        </Button>
+        <RequestLeadsDialog
+          pending={requestMore.isPending}
+          hasPending={!!pendingRequest}
+          pendingCount={pendingRequest?.requested_count ?? 0}
+          onRequest={(n) => requestMore.mutate(n)}
+        />
       </div>
+
+      {pendingRequest && (
+        <Card className="p-4 border-warning/40 bg-warning/5">
+          <div className="flex items-center gap-2 text-sm">
+            <Clock className="h-4 w-4 text-warning" />
+            Your request for {pendingRequest.requested_count} leads is waiting for admin approval.
+          </div>
+        </Card>
+      )}
+      {!pendingRequest && lastDecision && (
+        <Card className="p-4">
+          <div className="text-sm text-muted-foreground">
+            {lastDecision.status === "approved"
+              ? `Last request approved — ${lastDecision.assigned_count ?? 0} leads assigned.`
+              : "Your last lead request was declined by the admin."}
+          </div>
+        </Card>
+      )}
+
 
       <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
         <Card className="p-4">
@@ -167,5 +212,43 @@ export function TelecallerDashboard() {
         )}
       </div>
     </div>
+  );
+}
+
+function RequestLeadsDialog({ onRequest, pending, hasPending, pendingCount }: {
+  onRequest: (count: number) => void; pending: boolean; hasPending: boolean; pendingCount: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const [count, setCount] = useState<number>(25);
+
+  if (hasPending) {
+    return (
+      <Button size="lg" variant="outline" disabled>
+        <Clock className="h-4 w-4" /> Request pending ({pendingCount})
+      </Button>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="lg"><Plus className="h-4 w-4" /> Get More Leads</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Request more leads</DialogTitle></DialogHeader>
+        <div className="space-y-2">
+          <Label>How many leads do you need?</Label>
+          <Input type="number" min={1} value={count || ""} onChange={(e) => setCount(Number(e.target.value))} />
+          <p className="text-xs text-muted-foreground">
+            Your admin will review this request and decide how many leads to assign.
+          </p>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button disabled={pending || !count || count < 1}
+            onClick={() => { onRequest(count); setOpen(false); }}>Send Request</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
