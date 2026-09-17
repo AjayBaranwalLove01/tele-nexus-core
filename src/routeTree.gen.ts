@@ -21,6 +21,7 @@ import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedImportRouteImport } from './routes/_authenticated/import'
 import { Route as AuthenticatedFollowupsRouteImport } from './routes/_authenticated/followups'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedArchiveRouteImport } from './routes/_authenticated/archive'
 import { Route as AuthenticatedActivityRouteImport } from './routes/_authenticated/activity'
 import { Route as AuthenticatedLeadsIdRouteImport } from './routes/_authenticated/leads.$id'
 
@@ -85,6 +86,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedArchiveRoute = AuthenticatedArchiveRouteImport.update({
+  id: '/archive',
+  path: '/archive',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedActivityRoute = AuthenticatedActivityRouteImport.update({
   id: '/activity',
   path: '/activity',
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/activity': typeof AuthenticatedActivityRoute
+  '/archive': typeof AuthenticatedArchiveRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/followups': typeof AuthenticatedFollowupsRoute
   '/import': typeof AuthenticatedImportRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/activity': typeof AuthenticatedActivityRoute
+  '/archive': typeof AuthenticatedArchiveRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/followups': typeof AuthenticatedFollowupsRoute
   '/import': typeof AuthenticatedImportRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/activity': typeof AuthenticatedActivityRoute
+  '/_authenticated/archive': typeof AuthenticatedArchiveRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/followups': typeof AuthenticatedFollowupsRoute
   '/_authenticated/import': typeof AuthenticatedImportRoute
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/activity'
+    | '/archive'
     | '/dashboard'
     | '/followups'
     | '/import'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/activity'
+    | '/archive'
     | '/dashboard'
     | '/followups'
     | '/import'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/_authenticated/activity'
+    | '/_authenticated/archive'
     | '/_authenticated/dashboard'
     | '/_authenticated/followups'
     | '/_authenticated/import'
@@ -285,6 +297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/archive': {
+      id: '/_authenticated/archive'
+      path: '/archive'
+      fullPath: '/archive'
+      preLoaderRoute: typeof AuthenticatedArchiveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/activity': {
       id: '/_authenticated/activity'
       path: '/activity'
@@ -315,6 +334,7 @@ const AuthenticatedLeadsRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivityRoute: typeof AuthenticatedActivityRoute
+  AuthenticatedArchiveRoute: typeof AuthenticatedArchiveRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFollowupsRoute: typeof AuthenticatedFollowupsRoute
   AuthenticatedImportRoute: typeof AuthenticatedImportRoute
@@ -327,6 +347,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivityRoute: AuthenticatedActivityRoute,
+  AuthenticatedArchiveRoute: AuthenticatedArchiveRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFollowupsRoute: AuthenticatedFollowupsRoute,
   AuthenticatedImportRoute: AuthenticatedImportRoute,
