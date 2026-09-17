@@ -128,7 +128,7 @@ function LeadsPage() {
       const rows: any[] = [];
       for (let from = 0; ; from += PAGE) {
         let q = supabase.from("leads")
-          .select("id,name,phone_number,email,city,lead_received_date,call_date,follow_up_date,follow_up_time,remarks_count,last_remark,assigned_at,completed_at,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)")
+          .select("id,name,phone_number,email,city,source,lead_received_date,call_date,follow_up_date,follow_up_time,remarks_count,last_remark,assigned_at,completed_at,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)")
           .order("id")
           .is("archived_at", null)
           .range(from, from + PAGE - 1);
@@ -138,6 +138,7 @@ function LeadsPage() {
         if (scope === "mine" && me?.profile?.id) q = q.eq("assigned_to", me.profile.id);
         if (scope === "unassigned") q = q.is("assigned_to", null);
         if (search.trim()) q = q.or(`name.ilike.%${search}%,phone_number.ilike.%${search}%`);
+        if (sourceFilter !== "all") q = q.eq("source", sourceFilter);
         if (callDateFilter !== "all") {
           const today = new Date();
           const toIso = (d: Date) => d.toISOString().slice(0, 10);
@@ -164,6 +165,7 @@ function LeadsPage() {
         "Phone": l.phone_number ?? "",
         "Email": l.email ?? "",
         "City": toTitleCase(l.city) ?? "",
+        "Source": l.source ?? "",
         "Status": l.lead_statuses?.name ?? "",
         "Temperature": l.lead_temperatures?.name ?? "",
         "Assigned To": l.profiles?.full_name ?? "",
@@ -271,6 +273,13 @@ function LeadsPage() {
             </SelectContent>
           </Select>
         )}
+        <Select value={sourceFilter} onValueChange={(v) => { setSourceFilter(v); resetPage(); }}>
+          <SelectTrigger className="w-[160px]"><SelectValue placeholder="Source"/></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All sources</SelectItem>
+            {sources?.map((s)=><SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
         <Select value={callDateFilter} onValueChange={(v) => { setCallDateFilter(v); resetPage(); }}>
           <SelectTrigger className="w-[150px]"><SelectValue placeholder="Call date"/></SelectTrigger>
           <SelectContent>
@@ -316,6 +325,7 @@ function LeadsPage() {
                   <th className="p-3">Phone</th>
                   <th className="p-3">Email</th>
                   <th className="p-3">City</th>
+                  <th className="p-3">Source</th>
                   <th className="p-3">Status</th>
                   <th className="p-3">Temp</th>
                   <th className="p-3">Follow-up</th>
@@ -352,6 +362,7 @@ function LeadsPage() {
                       <td className="p-3 text-muted-foreground">{l.phone_number || "—"}</td>
                       <td className="p-3 text-muted-foreground">{l.email || "—"}</td>
                       <td className="p-3 text-muted-foreground">{l.city || "—"}</td>
+                      <td className="p-3 text-muted-foreground">{l.source || "—"}</td>
                       <td className="p-3">{l.lead_statuses?.name && <Badge variant="outline" className={statusColor(l.lead_statuses.name)}>{l.lead_statuses.name}</Badge>}</td>
                       <td className="p-3">{l.lead_temperatures?.name && <Badge variant="outline" className={tempColor(l.lead_temperatures.name)}>{l.lead_temperatures.name}</Badge>}</td>
                       <td className="p-3"><Badge variant="outline" className={fu.cls}>{fu.label}</Badge> <span className="text-xs text-muted-foreground">{formatDate(l.follow_up_date)}</span></td>
@@ -397,7 +408,7 @@ function LeadsPage() {
                     </tr>
                   );
                 })}
-                {rows.length === 0 && <tr><td colSpan={me?.isAdmin ? 11 : 10} className="p-10 text-center text-muted-foreground">No leads found.</td></tr>}
+                {rows.length === 0 && <tr><td colSpan={me?.isAdmin ? 12 : 11} className="p-10 text-center text-muted-foreground">No leads found.</td></tr>}
               </tbody>
             </table>
           </div>
