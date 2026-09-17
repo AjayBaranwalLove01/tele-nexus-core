@@ -36,7 +36,7 @@ export function ArchiveLeadsDialog({
       const finalReason = reason === "none" ? null : reason === "Other" ? custom.trim() || "Other" : reason;
       const { data, error } = await supabase.rpc("archive_leads", {
         _ids: leadIds,
-        _reason: finalReason,
+        _reason: finalReason ?? undefined,
       });
       if (error) throw error;
       return data as unknown as { archived: number; requested: number };
