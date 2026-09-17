@@ -214,3 +214,41 @@ export function TelecallerDashboard() {
     </div>
   );
 }
+
+function RequestLeadsDialog({ onRequest, pending, hasPending, pendingCount }: {
+  onRequest: (count: number) => void; pending: boolean; hasPending: boolean; pendingCount: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const [count, setCount] = useState<number>(25);
+
+  if (hasPending) {
+    return (
+      <Button size="lg" variant="outline" disabled>
+        <Clock className="h-4 w-4" /> Request pending ({pendingCount})
+      </Button>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="lg"><Plus className="h-4 w-4" /> Get More Leads</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Request more leads</DialogTitle></DialogHeader>
+        <div className="space-y-2">
+          <Label>How many leads do you need?</Label>
+          <Input type="number" min={1} value={count || ""} onChange={(e) => setCount(Number(e.target.value))} />
+          <p className="text-xs text-muted-foreground">
+            Your admin will review this request and decide how many leads to assign.
+          </p>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button disabled={pending || !count || count < 1}
+            onClick={() => { onRequest(count); setOpen(false); }}>Send Request</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
