@@ -161,6 +161,7 @@ function ImportPage() {
       qc.invalidateQueries({ queryKey: ["import-jobs"] });
       qc.invalidateQueries({ queryKey: ["admin-dashboard"] });
       qc.invalidateQueries({ queryKey: ["leads-list"] });
+      qc.invalidateQueries({ queryKey: ["lead-sources"] });
     } catch (e: any) {
       toast.error(e.message ?? "Import failed");
     } finally {
@@ -216,7 +217,7 @@ function ImportPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Import Leads</h1>
-          <p className="text-sm text-muted-foreground">Upload Excel (.xlsx) or CSV with Lead Received Date, Name, Phone Number, Email and City columns. Preview the data, then confirm to insert.</p>
+          <p className="text-sm text-muted-foreground">Upload Excel (.xlsx) or CSV with Lead Received Date, Name, Phone Number, Email, City and Source columns. Preview the data, then confirm to insert.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={downloadLeadTemplate}>
