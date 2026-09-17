@@ -280,6 +280,45 @@ export type Database = {
           },
         ]
       }
+      lead_requests: {
+        Row: {
+          approved_count: number | null
+          assigned_count: number | null
+          created_at: string
+          id: string
+          note: string | null
+          requested_count: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          telecaller_id: string
+        }
+        Insert: {
+          approved_count?: number | null
+          assigned_count?: number | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          requested_count?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          telecaller_id: string
+        }
+        Update: {
+          approved_count?: number | null
+          assigned_count?: number | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          requested_count?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          telecaller_id?: string
+        }
+        Relationships: []
+      }
       lead_statuses: {
         Row: {
           created_at: string
@@ -588,6 +627,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_lead_request: {
+        Args: { _count: number; _id: string }
+        Returns: number
+      }
       assign_leads_by_ids: {
         Args: { _ids: number[]; _telecaller: string }
         Returns: Json
@@ -666,6 +709,11 @@ export type Database = {
       }
       profile_name: { Args: { _id: string }; Returns: string }
       recall_unused_leads: { Args: { _telecaller?: string }; Returns: number }
+      reject_lead_request: {
+        Args: { _id: string; _note?: string }
+        Returns: undefined
+      }
+      request_more_leads: { Args: { _count: number }; Returns: string }
       status_name: { Args: { _id: string }; Returns: string }
       status_transitions: {
         Args: { _from: string; _telecaller?: string; _to: string }

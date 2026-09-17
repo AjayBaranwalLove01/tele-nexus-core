@@ -15,6 +15,13 @@
       "when": 1789299282677,
       "tag": "0001_productivity_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789648734221,
+      "tag": "0002_lead_requests",
+      "breakpoints": true
     }
   ]
 }
