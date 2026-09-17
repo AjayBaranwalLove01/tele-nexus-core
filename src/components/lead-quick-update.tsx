@@ -120,11 +120,7 @@ export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName
     },
     onSuccess: () => {
       toast.success("Updated");
-      qc.invalidateQueries({ queryKey: ["my-leads"] });
-      qc.invalidateQueries({ queryKey: ["leads"] });
-      qc.invalidateQueries({ queryKey: ["lead", leadId] });
-      qc.invalidateQueries({ queryKey: ["remarks", leadId] });
-      qc.invalidateQueries({ queryKey: ["lead-quick", leadId] });
+      invalidateLeadViews(qc, leadId);
       setOpen(false);
     },
     onError: (e: any) => toast.error(e.message),
