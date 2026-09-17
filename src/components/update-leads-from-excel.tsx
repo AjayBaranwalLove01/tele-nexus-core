@@ -109,7 +109,7 @@ export function UpdateLeadsFromExcel() {
       const page = 1000;
       for (let from = 0; ; from += page) {
         const { data, error } = await supabase
-          .from("leads").select("id,phone_number,status_id,call_date,assigned_to")
+          .from("leads").select("id,phone_number,status_id,call_date,assigned_to").is("archived_at", null)
           .range(from, from + page - 1);
         if (error) throw error;
         (data ?? []).forEach((l: any) => {

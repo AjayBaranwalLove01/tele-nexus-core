@@ -15,7 +15,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Phone, MessageCircle, Search, Trash2, Download } from "lucide-react";
+import { Phone, MessageCircle, Search, Trash2, Download, Archive } from "lucide-react";
+import { ArchiveLeadsDialog } from "@/components/archive-leads-dialog";
+import { ArchiveByPhoneDialog } from "@/components/archive-by-phone-dialog";
 import * as XLSX from "xlsx";
 import { useStatuses, useTemperatures, useTelecallers } from "@/hooks/use-meta";
 import { useMyProfile } from "@/hooks/use-auth";
@@ -58,6 +60,7 @@ function LeadsPage() {
       let q = supabase.from("leads")
         .select("id,name,phone_number,email,city,lead_received_date,call_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)", { count: "exact" })
         .order(sortColumn, { ascending: sortAsc, nullsFirst: false })
+        .is("archived_at", null)
         .range((page - 1) * pageSize, page * pageSize - 1);
       if (statusId !== "all") q = q.eq("status_id", statusId);
       if (tempId !== "all") q = q.eq("temperature_id", tempId);
@@ -116,6 +119,7 @@ function LeadsPage() {
         let q = supabase.from("leads")
           .select("id,name,phone_number,email,city,lead_received_date,call_date,follow_up_date,follow_up_time,remarks_count,last_remark,assigned_at,completed_at,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)")
           .order("id")
+          .is("archived_at", null)
           .range(from, from + PAGE - 1);
         if (statusId !== "all") q = q.eq("status_id", statusId);
         if (tempId !== "all") q = q.eq("temperature_id", tempId);
@@ -184,8 +188,16 @@ function LeadsPage() {
               <Download className="h-4 w-4" />{exporting ? "Exporting…" : "Download Excel"}
             </Button>
           )}
+          {me?.isAdmin && <ArchiveByPhoneDialog />}
           {me?.isAdmin && selected.length > 0 && (
             <AssignSelectedDialog leadIds={selected} onDone={() => setSelected([])} />
+          )}
+          {me?.isAdmin && selected.length > 0 && (
+            <ArchiveLeadsDialog
+              leadIds={selected}
+              onDone={() => setSelected([])}
+              trigger={<Button variant="outline"><Archive className="h-4 w-4" />Move {selected.length} to Archive</Button>}
+            />
           )}
           {me?.isAdmin && selected.length > 0 && (
             <AlertDialog>
@@ -338,6 +350,16 @@ function LeadsPage() {
                           {l.phone_number && <Button asChild size="sm" variant="ghost"><a href={`tel:${l.phone_number}`}><Phone className="h-4 w-4"/></a></Button>}
                           {wa && <Button asChild size="sm" variant="ghost"><a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer"><MessageCircle className="h-4 w-4"/></a></Button>}
                           <LeadQuickUpdate leadId={l.id} leadName={l.name} />
+                          {me?.isAdmin && (
+                            <ArchiveLeadsDialog
+                              leadIds={[l.id]}
+                              trigger={
+                                <Button size="sm" variant="ghost" title="Move to Archive">
+                                  <Archive className="h-4 w-4" />
+                                </Button>
+                              }
+                            />
+                          )}
                           {me?.isAdmin && (
                             <AlertDialog>
                               <AlertDialogTrigger asChild>

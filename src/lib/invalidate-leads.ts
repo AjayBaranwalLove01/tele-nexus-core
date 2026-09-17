@@ -11,6 +11,7 @@ export function invalidateLeadViews(qc: QueryClient, leadId?: number) {
     ["admin-status-distribution"],
     ["my-status-distribution"],
     ["productivity"],
+    ["archive"],
   ];
   keys.forEach((key) => qc.invalidateQueries({ queryKey: key }));
   if (leadId !== undefined) {

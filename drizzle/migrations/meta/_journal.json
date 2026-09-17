@@ -29,6 +29,13 @@
       "when": 1789649550589,
       "tag": "0003_productivity_exclude_assignments",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789680565122,
+      "tag": "0004_lead_archive",
+      "breakpoints": true
     }
   ]
 }

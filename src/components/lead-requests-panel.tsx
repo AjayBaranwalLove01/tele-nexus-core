@@ -52,7 +52,7 @@ export function LeadRequestsPanel() {
     queryKey: ["unassigned-pool-count"],
     queryFn: async () => {
       const { count } = await supabase
-        .from("leads").select("*", { count: "exact", head: true }).is("assigned_to", null);
+        .from("leads").select("*", { count: "exact", head: true }).is("assigned_to", null).is("archived_at", null);
       return count ?? 0;
     },
   });
