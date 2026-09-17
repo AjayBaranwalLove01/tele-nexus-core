@@ -42,6 +42,7 @@ function LeadsPage() {
   const [scope, setScope] = useState<string>("all");
   const [assignedTo, setAssignedTo] = useState<string>("all");
   const [callDateFilter, setCallDateFilter] = useState<string>("all");
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("updated_at:desc");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
@@ -49,16 +50,25 @@ function LeadsPage() {
 
   const { data: telecallers } = useTelecallers();
 
+  const { data: sources } = useQuery({
+    queryKey: ["lead-sources"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("leads").select("source").not("source", "is", null).limit(5000);
+      if (error) throw error;
+      return [...new Set((data ?? []).map((r: any) => r.source as string).filter(Boolean))].sort();
+    },
+  });
+
   const sortColumn = sortBy.split(":")[0] || "updated_at";
   const sortAsc = sortBy.split(":")[1] === "asc";
 
   const resetPage = () => setPage(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["leads-list", search, statusId, tempId, scope, assignedTo, callDateFilter, sortBy, page, pageSize, me?.profile?.id],
+    queryKey: ["leads-list", search, statusId, tempId, scope, assignedTo, callDateFilter, sourceFilter, sortBy, page, pageSize, me?.profile?.id],
     queryFn: async () => {
       let q = supabase.from("leads")
-        .select("id,name,phone_number,email,city,lead_received_date,call_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)", { count: "exact" })
+        .select("id,name,phone_number,email,city,source,lead_received_date,call_date,follow_up_date,assigned_to,status_id,temperature_id,lead_statuses(name),lead_temperatures(name),profiles:assigned_to(full_name)", { count: "exact" })
         .order(sortColumn, { ascending: sortAsc, nullsFirst: false })
         .is("archived_at", null)
         .range((page - 1) * pageSize, page * pageSize - 1);
@@ -68,6 +78,7 @@ function LeadsPage() {
       if (scope === "mine" && me?.profile?.id) q = q.eq("assigned_to", me.profile.id);
       if (scope === "unassigned") q = q.is("assigned_to", null);
       if (search.trim()) q = q.or(`name.ilike.%${search}%,phone_number.ilike.%${search}%`);
+      if (sourceFilter !== "all") q = q.eq("source", sourceFilter);
       if (callDateFilter !== "all") {
         const today = new Date();
         const toIso = (d: Date) => d.toISOString().slice(0, 10);
