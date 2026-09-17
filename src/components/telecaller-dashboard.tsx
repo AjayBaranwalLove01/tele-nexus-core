@@ -94,16 +94,33 @@ export function TelecallerDashboard() {
     },
   });
 
-  const getMore = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.rpc("get_more_leads");
+  const { data: myRequests } = useQuery({
+    queryKey: ["my-lead-requests"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("lead_requests")
+        .select("*")
+        .eq("telecaller_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
       if (error) throw error;
-      return data as number;
+      return data ?? [];
     },
-    onSuccess: (n) => {
-      toast.success(n > 0 ? `Assigned ${n} new leads` : "No leads available in pool");
-      qc.invalidateQueries({ queryKey: ["my-leads"] });
-      qc.invalidateQueries({ queryKey: ["my-status-distribution"] });
+  });
+
+  const pendingRequest = (myRequests ?? []).find((r: any) => r.status === "pending");
+  const lastDecision = (myRequests ?? []).find((r: any) => r.status !== "pending");
+
+  const requestMore = useMutation({
+    mutationFn: async (count: number) => {
+      const { error } = await supabase.rpc("request_more_leads", { _count: count });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Request sent to admin for approval");
+      qc.invalidateQueries({ queryKey: ["my-lead-requests"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
