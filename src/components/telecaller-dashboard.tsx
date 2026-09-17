@@ -141,10 +141,32 @@ export function TelecallerDashboard() {
           <h1 className="text-2xl font-bold tracking-tight">My Workspace</h1>
           <p className="text-sm text-muted-foreground">Your follow-up queue, prioritized.</p>
         </div>
-        <Button onClick={() => getMore.mutate()} disabled={getMore.isPending} size="lg">
-          <Plus className="h-4 w-4" /> Get More Leads
-        </Button>
+        <RequestLeadsDialog
+          pending={requestMore.isPending}
+          hasPending={!!pendingRequest}
+          pendingCount={pendingRequest?.requested_count ?? 0}
+          onRequest={(n) => requestMore.mutate(n)}
+        />
       </div>
+
+      {pendingRequest && (
+        <Card className="p-4 border-warning/40 bg-warning/5">
+          <div className="flex items-center gap-2 text-sm">
+            <Clock className="h-4 w-4 text-warning" />
+            Your request for {pendingRequest.requested_count} leads is waiting for admin approval.
+          </div>
+        </Card>
+      )}
+      {!pendingRequest && lastDecision && (
+        <Card className="p-4">
+          <div className="text-sm text-muted-foreground">
+            {lastDecision.status === "approved"
+              ? `Last request approved — ${lastDecision.assigned_count ?? 0} leads assigned.`
+              : "Your last lead request was declined by the admin."}
+          </div>
+        </Card>
+      )}
+
 
       <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
         <Card className="p-4">
