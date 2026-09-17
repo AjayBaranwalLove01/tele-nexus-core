@@ -44,12 +44,13 @@ function ArchivePage() {
   const [search, setSearch] = useState("");
   const [statusName, setStatusName] = useState("all");
   const [telecaller, setTelecaller] = useState("all");
+  const [source, setSource] = useState("all");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["archive", "list", search, statusName, telecaller, from, to],
+    queryKey: ["archive", "list", search, statusName, telecaller, source, from, to],
     enabled: !!me?.isAdmin,
     queryFn: async () => {
       let q = supabase
@@ -60,6 +61,7 @@ function ArchivePage() {
         .limit(1000);
       if (statusName !== "all") q = q.eq("status_name", statusName);
       if (telecaller !== "all") q = q.eq("assigned_to", telecaller);
+      if (source !== "all") q = q.eq("source", source);
       if (from) q = q.gte("archived_at", `${from}T00:00:00Z`);
       if (to) q = q.lte("archived_at", `${to}T23:59:59Z`);
       const term = search.trim();
@@ -96,9 +98,20 @@ function ArchivePage() {
     },
   });
 
+  const { data: sources } = useQuery({
+    queryKey: ["archive", "sources"],
+    enabled: !!me?.isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("lead_archive").select("source").not("source", "is", null).limit(5000);
+      if (error) throw error;
+      return [...new Set((data ?? []).map((r: any) => r.source as string).filter(Boolean))].sort();
+    },
+  });
+
   const rows = data ?? [];
 
   const byStatus = useMemo(() => tally(rows, (r) => r.status_name ?? "—"), [rows]);
+  const bySource = useMemo(() => tally(rows, (r) => r.source ?? "—"), [rows]);
   const byTelecaller = useMemo(() => tally(rows, (r) => r.assigned_name ?? "Unassigned"), [rows]);
   const byReason = useMemo(() => tally(rows, (r) => r.archive_reason ?? "No reason"), [rows]);
 
@@ -171,6 +184,13 @@ function ArchivePage() {
             {statuses?.map((s) => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
           </SelectContent>
         </Select>
+        <Select value={source} onValueChange={setSource}>
+          <SelectTrigger className="w-[170px]"><SelectValue placeholder="Source" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All sources</SelectItem>
+            {sources?.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
         <Select value={telecaller} onValueChange={setTelecaller}>
           <SelectTrigger className="w-[180px]"><SelectValue placeholder="Telecaller" /></SelectTrigger>
           <SelectContent>
@@ -184,6 +204,7 @@ function ArchivePage() {
 
       <div className="grid gap-3 lg:grid-cols-2">
         <ChartCard title="Archived leads by status" data={byStatus} />
+        <ChartCard title="Archived leads by source" data={bySource} />
         <ChartCard title="Archived leads by telecaller" data={byTelecaller} />
         <ChartCard title="Archived leads by reason" data={byReason} />
         <Card className="p-4">
@@ -217,6 +238,7 @@ function ArchivePage() {
                   <th className="p-3">Name</th>
                   <th className="p-3">Phone</th>
                   <th className="p-3">City</th>
+                  <th className="p-3">Source</th>
                   <th className="p-3">Status</th>
                   <th className="p-3">Telecaller</th>
                   <th className="p-3">Created</th>
@@ -242,6 +264,7 @@ function ArchivePage() {
                     <td className="p-3 font-medium">{r.name || "Unnamed"}</td>
                     <td className="p-3 text-muted-foreground">{r.phone_number || "—"}</td>
                     <td className="p-3 text-muted-foreground">{r.city || "—"}</td>
+                    <td className="p-3 text-muted-foreground">{r.source || "—"}</td>
                     <td className="p-3">{r.status_name && <Badge variant="outline" className={statusColor(r.status_name)}>{r.status_name}</Badge>}</td>
                     <td className="p-3 text-muted-foreground">{r.assigned_name ?? "—"}</td>
                     <td className="p-3 text-muted-foreground">{formatDate(r.lead_received_date)}</td>
@@ -270,7 +293,7 @@ function ArchivePage() {
                   </tr>
                 ))}
                 {rows.length === 0 && (
-                  <tr><td colSpan={12} className="p-10 text-center text-muted-foreground">No archived leads found.</td></tr>
+                  <tr><td colSpan={13} className="p-10 text-center text-muted-foreground">No archived leads found.</td></tr>
                 )}
               </tbody>
             </table>
