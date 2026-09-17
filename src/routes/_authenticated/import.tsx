@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/import")({
 
 const CHUNK = 2000;
 
-type Row = { name: string; phone: string; email: string; city: string; received_date: string };
+type Row = { name: string; phone: string; email: string; city: string; source: string; received_date: string };
 type Preview = {
   valid: Row[];
   duplicates: Row[];
@@ -85,12 +85,14 @@ function ImportPage() {
       const phoneKey = keys.find((k) => /phone|mobile/i.test(k)) ?? keys.find((k) => /number/i.test(k) && !/date/i.test(k));
       const emailKey = keys.find((k) => /e-?mail/i.test(k));
       const cityKey = keys.find((k) => /city|town|location/i.test(k));
+      const sourceKey = keys.find((k) => /source/i.test(k));
       const dateKey = keys.find((k) => /date/i.test(k));
       return {
         name: nameKey ? toTitleCase(String(r[nameKey])) : "",
         phone: phoneKey ? String(r[phoneKey]).trim() : "",
         email: emailKey ? String(r[emailKey]).trim() : "",
         city: cityKey ? toTitleCase(String(r[cityKey])) : "",
+        source: sourceKey ? String(r[sourceKey]).trim() : "",
         received_date: dateKey ? toISODate(r[dateKey]) : "",
       };
     });
@@ -187,7 +189,7 @@ function ImportPage() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 sticky top-0">
               <tr className="text-left">
-                <th className="p-2">Received</th><th className="p-2">Name</th><th className="p-2">Phone</th><th className="p-2">Email</th><th className="p-2">City</th>
+                <th className="p-2">Received</th><th className="p-2">Name</th><th className="p-2">Phone</th><th className="p-2">Email</th><th className="p-2">City</th><th className="p-2">Source</th>
               </tr>
             </thead>
             <tbody>
@@ -198,6 +200,7 @@ function ImportPage() {
                   <td className="p-2">{r.phone || "—"}</td>
                   <td className="p-2 text-muted-foreground">{r.email || "—"}</td>
                   <td className="p-2 text-muted-foreground">{r.city || "—"}</td>
+                  <td className="p-2 text-muted-foreground">{r.source || "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -258,11 +261,11 @@ function ImportPage() {
           {file && <div className="mt-2 text-sm text-muted-foreground">{file.name} · {(file.size/1024).toFixed(1)} KB</div>}
           <div className="mt-4 mx-auto max-w-md rounded-md bg-muted/50 p-3 text-left text-xs text-muted-foreground">
             <div className="font-medium text-foreground mb-1">Excel column format (header row):</div>
-            <div className="font-mono">Lead Received Date | Name | Phone Number | Email | City</div>
+            <div className="font-mono">Lead Received Date | Name | Phone Number | Email | City | Source</div>
             <ul className="mt-1 list-disc pl-4 space-y-0.5">
               <li><span className="font-medium text-foreground">Name</span> and <span className="font-medium text-foreground">Phone Number</span> are mandatory — rows missing either are skipped.</li>
               <li>Lead Received Date is optional (defaults to today). Use YYYY-MM-DD format.</li>
-              <li>Email and City are optional.</li>
+              <li>Email, City and Source are optional (Source e.g. Website, Referral, Old Google Lead).</li>
               <li>Download the <span className="font-medium text-foreground">Sample template</span> above to start from the correct format.</li>
             </ul>
           </div>

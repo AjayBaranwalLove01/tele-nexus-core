@@ -92,6 +92,7 @@ export function AddLeadDialog({ trigger }: { trigger?: React.ReactNode }) {
       if (error) throw error;
       toast.success("Lead added");
       qc.invalidateQueries({ queryKey: ["leads-list"] });
+      qc.invalidateQueries({ queryKey: ["lead-sources"] });
       qc.invalidateQueries({ queryKey: ["admin-dashboard"] });
       reset();
       setOpen(false);
