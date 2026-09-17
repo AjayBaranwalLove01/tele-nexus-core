@@ -15,6 +15,7 @@ import { useStatuses, useTemperatures } from "@/hooks/use-meta";
 import { statusColor, tempColor, formatDate } from "@/lib/lead-utils";
 import { toast } from "sonner";
 import { LeadHistoryTimeline } from "@/components/lead-history-dialog";
+import { invalidateLeadViews } from "@/lib/invalidate-leads";
 
 export const Route = createFileRoute("/_authenticated/leads/$id")({
   head: () => ({ meta: [{ title: "Lead — Oxo Lead Manager" }] }),
