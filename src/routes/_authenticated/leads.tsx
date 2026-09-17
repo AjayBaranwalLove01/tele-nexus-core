@@ -23,6 +23,7 @@ import { followupBadge, statusColor, tempColor, formatDate, toTitleCase } from "
 import { LeadQuickUpdate } from "@/components/lead-quick-update";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
 import { AssignSelectedDialog } from "@/components/assign-selected-dialog";
+import { invalidateLeadViews } from "@/lib/invalidate-leads";
 
 export const Route = createFileRoute("/_authenticated/leads")({
   head: () => ({ meta: [{ title: "Leads — Oxo Lead Manager" }] }),
