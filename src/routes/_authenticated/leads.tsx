@@ -100,8 +100,7 @@ function LeadsPage() {
     onSuccess: (n) => {
       toast.success(`${n} lead${n === 1 ? "" : "s"} deleted`);
       setSelected([]);
-      qc.invalidateQueries({ queryKey: ["leads-list"] });
-      qc.invalidateQueries({ queryKey: ["my-leads"] });
+      invalidateLeadViews(qc);
     },
     onError: (e: any) => toast.error(e.message ?? "Delete failed"),
   });
