@@ -15,6 +15,7 @@ import { useStatuses, useTemperatures } from "@/hooks/use-meta";
 import { statusColor, tempColor, formatDate } from "@/lib/lead-utils";
 import { toast } from "sonner";
 import { LeadHistoryTimeline } from "@/components/lead-history-dialog";
+import { invalidateLeadViews } from "@/lib/invalidate-leads";
 
 export const Route = createFileRoute("/_authenticated/leads/$id")({
   head: () => ({ meta: [{ title: "Lead — Oxo Lead Manager" }] }),
@@ -86,9 +87,7 @@ function LeadDetail() {
     onSuccess: () => {
       toast.success("Saved");
       setRemark("");
-      qc.invalidateQueries({ queryKey: ["lead", leadId] });
-      qc.invalidateQueries({ queryKey: ["remarks", leadId] });
-      qc.invalidateQueries({ queryKey: ["my-leads"] });
+      invalidateLeadViews(qc, leadId);
     },
     onError: (e: any) => toast.error(e.message),
   });

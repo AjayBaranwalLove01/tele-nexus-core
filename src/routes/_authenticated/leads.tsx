@@ -23,6 +23,7 @@ import { followupBadge, statusColor, tempColor, formatDate, toTitleCase } from "
 import { LeadQuickUpdate } from "@/components/lead-quick-update";
 import { AddLeadDialog } from "@/components/add-lead-dialog";
 import { AssignSelectedDialog } from "@/components/assign-selected-dialog";
+import { invalidateLeadViews } from "@/lib/invalidate-leads";
 
 export const Route = createFileRoute("/_authenticated/leads")({
   head: () => ({ meta: [{ title: "Leads — Oxo Lead Manager" }] }),
@@ -100,8 +101,7 @@ function LeadsPage() {
     onSuccess: (n) => {
       toast.success(`${n} lead${n === 1 ? "" : "s"} deleted`);
       setSelected([]);
-      qc.invalidateQueries({ queryKey: ["leads-list"] });
-      qc.invalidateQueries({ queryKey: ["my-leads"] });
+      invalidateLeadViews(qc);
     },
     onError: (e: any) => toast.error(e.message ?? "Delete failed"),
   });
