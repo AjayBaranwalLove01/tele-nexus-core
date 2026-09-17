@@ -241,6 +241,107 @@ export type Database = {
           },
         ]
       }
+      lead_archive: {
+        Row: {
+          archive_reason: string | null
+          archived_at: string
+          archived_by: string | null
+          archived_by_name: string | null
+          assigned_name: string | null
+          assigned_to: string | null
+          call_date: string | null
+          city: string | null
+          created_at: string
+          email: string | null
+          follow_up_date: string | null
+          follow_up_time: string | null
+          id: string
+          last_remark: string | null
+          lead_created_at: string | null
+          lead_id: number
+          lead_received_date: string | null
+          lead_updated_at: string | null
+          name: string | null
+          phone_number: string | null
+          remarks_count: number
+          restored_at: string | null
+          restored_by: string | null
+          restored_by_name: string | null
+          snapshot: Json | null
+          status_id: string | null
+          status_name: string | null
+          temperature_name: string | null
+        }
+        Insert: {
+          archive_reason?: string | null
+          archived_at?: string
+          archived_by?: string | null
+          archived_by_name?: string | null
+          assigned_name?: string | null
+          assigned_to?: string | null
+          call_date?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          follow_up_date?: string | null
+          follow_up_time?: string | null
+          id?: string
+          last_remark?: string | null
+          lead_created_at?: string | null
+          lead_id: number
+          lead_received_date?: string | null
+          lead_updated_at?: string | null
+          name?: string | null
+          phone_number?: string | null
+          remarks_count?: number
+          restored_at?: string | null
+          restored_by?: string | null
+          restored_by_name?: string | null
+          snapshot?: Json | null
+          status_id?: string | null
+          status_name?: string | null
+          temperature_name?: string | null
+        }
+        Update: {
+          archive_reason?: string | null
+          archived_at?: string
+          archived_by?: string | null
+          archived_by_name?: string | null
+          assigned_name?: string | null
+          assigned_to?: string | null
+          call_date?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          follow_up_date?: string | null
+          follow_up_time?: string | null
+          id?: string
+          last_remark?: string | null
+          lead_created_at?: string | null
+          lead_id?: number
+          lead_received_date?: string | null
+          lead_updated_at?: string | null
+          name?: string | null
+          phone_number?: string | null
+          remarks_count?: number
+          restored_at?: string | null
+          restored_by?: string | null
+          restored_by_name?: string | null
+          snapshot?: Json | null
+          status_id?: string | null
+          status_name?: string | null
+          temperature_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_archive_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_remarks: {
         Row: {
           created_at: string
@@ -372,6 +473,9 @@ export type Database = {
       }
       leads: {
         Row: {
+          archive_reason: string | null
+          archived_at: string | null
+          archived_by: string | null
           assigned_at: string | null
           assigned_to: string | null
           call_date: string | null
@@ -392,6 +496,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archive_reason?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           assigned_at?: string | null
           assigned_to?: string | null
           call_date?: string | null
@@ -412,6 +519,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archive_reason?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           assigned_at?: string | null
           assigned_to?: string | null
           call_date?: string | null
@@ -631,6 +741,10 @@ export type Database = {
         Args: { _count: number; _id: string }
         Returns: number
       }
+      archive_leads: {
+        Args: { _ids: number[]; _reason?: string }
+        Returns: Json
+      }
       assign_leads_by_ids: {
         Args: { _ids: number[]; _telecaller: string }
         Returns: Json
@@ -714,6 +828,7 @@ export type Database = {
         Returns: undefined
       }
       request_more_leads: { Args: { _count: number }; Returns: string }
+      restore_leads: { Args: { _ids: number[] }; Returns: Json }
       status_name: { Args: { _id: string }; Returns: string }
       status_transitions: {
         Args: { _from: string; _telecaller?: string; _to: string }
