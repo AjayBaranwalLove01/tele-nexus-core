@@ -268,6 +268,7 @@ export type Database = {
           restored_by: string | null
           restored_by_name: string | null
           snapshot: Json | null
+          source: string | null
           status_id: string | null
           status_name: string | null
           temperature_name: string | null
@@ -298,6 +299,7 @@ export type Database = {
           restored_by?: string | null
           restored_by_name?: string | null
           snapshot?: Json | null
+          source?: string | null
           status_id?: string | null
           status_name?: string | null
           temperature_name?: string | null
@@ -328,6 +330,7 @@ export type Database = {
           restored_by?: string | null
           restored_by_name?: string | null
           snapshot?: Json | null
+          source?: string | null
           status_id?: string | null
           status_name?: string | null
           temperature_name?: string | null
@@ -491,6 +494,7 @@ export type Database = {
           name: string | null
           phone_number: string | null
           remarks_count: number
+          source: string | null
           status_id: string | null
           temperature_id: string | null
           updated_at: string
@@ -514,6 +518,7 @@ export type Database = {
           name?: string | null
           phone_number?: string | null
           remarks_count?: number
+          source?: string | null
           status_id?: string | null
           temperature_id?: string | null
           updated_at?: string
@@ -537,6 +542,7 @@ export type Database = {
           name?: string | null
           phone_number?: string | null
           remarks_count?: number
+          source?: string | null
           status_id?: string | null
           temperature_id?: string | null
           updated_at?: string
