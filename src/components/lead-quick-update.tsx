@@ -11,6 +11,7 @@ import { useStatuses, useTemperatures, useTelecallers, STATUSES_KEY } from "@/ho
 import { useMyProfile } from "@/hooks/use-auth";
 import { Pencil, Save } from "lucide-react";
 import { toast } from "sonner";
+import { invalidateLeadViews } from "@/lib/invalidate-leads";
 
 export function LeadQuickUpdate({ leadId, leadName }: { leadId: number; leadName: string | null }) {
   const [open, setOpen] = useState(false);
