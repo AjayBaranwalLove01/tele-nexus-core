@@ -54,6 +54,10 @@ function createSupabaseClient() {
       autoRefreshToken: true,
     }
   });
+
+  setupAuthListeners(client);
+
+  return client;
 }
 
 let _supabase: ReturnType<typeof createSupabaseClient> | undefined;
