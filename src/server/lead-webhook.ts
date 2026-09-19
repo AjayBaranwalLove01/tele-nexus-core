@@ -249,10 +249,13 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
           }).select("id").maybeSingle();
 
           try {
-            await (supabaseAdmin.from("lead_remarks") as any).insert({
-              lead_id: existingLead.id,
-              remark: `[Duplicate Lead Inquiry Received via WordPress]\n${travelRemarks}`,
-            });
+            if (systemUserId) {
+              await (supabaseAdmin.from("lead_remarks") as any).insert({
+                lead_id: existingLead.id,
+                user_id: systemUserId,
+                remark: `[Duplicate Lead Inquiry Received via Website Form]\n${travelRemarks}`,
+              });
+            }
             await (supabaseAdmin.from("leads") as any).update({
               last_remark: `[Duplicate Inquiry ${new Date().toLocaleDateString()}] ${travelRemarks.slice(0, 150)}...`,
               updated_at: new Date().toISOString(),
