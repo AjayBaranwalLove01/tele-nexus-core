@@ -299,10 +299,13 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
 
         if (!insertError && insertedLead) {
           try {
-            await (supabaseAdmin.from("lead_remarks") as any).insert({
-              lead_id: insertedLead.id,
-              remark: travelRemarks,
-            });
+            if (systemUserId) {
+              await (supabaseAdmin.from("lead_remarks") as any).insert({
+                lead_id: insertedLead.id,
+                user_id: systemUserId,
+                remark: `[Website Form Inquiry]\n${travelRemarks}`,
+              });
+            }
           } catch (rErr) {}
 
           return new Response(
