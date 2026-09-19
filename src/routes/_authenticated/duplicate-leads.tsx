@@ -379,8 +379,9 @@ function DuplicateLeadsPage() {
                     {/* Original Lead Link */}
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       {item.original_lead_id ? (
-                        <Link
-                          to={`/leads/${item.original_lead_id}`}
+                      <Link
+                          to="/leads/$id"
+                          params={{ id: String(item.original_lead_id) }}
                           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-200"
                         >
                           Lead #{item.original_lead_id}

@@ -93,6 +93,7 @@ export type Database = {
           id: number
           leads_per_telecaller: number
           updated_at: string
+          wp_webhook_token: string | null
         }
         Insert: {
           auto_refill?: boolean
@@ -100,6 +101,7 @@ export type Database = {
           id?: number
           leads_per_telecaller?: number
           updated_at?: string
+          wp_webhook_token?: string | null
         }
         Update: {
           auto_refill?: boolean
@@ -107,8 +109,56 @@ export type Database = {
           id?: number
           leads_per_telecaller?: number
           updated_at?: string
+          wp_webhook_token?: string | null
         }
         Relationships: []
+      }
+      duplicate_leads: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string | null
+          id: number
+          name: string | null
+          original_lead_id: number | null
+          phone_number: string
+          raw_payload: Json | null
+          remarks: string | null
+          source: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: number
+          name?: string | null
+          original_lead_id?: number | null
+          phone_number: string
+          raw_payload?: Json | null
+          remarks?: string | null
+          source?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: number
+          name?: string | null
+          original_lead_id?: number | null
+          phone_number?: string
+          raw_payload?: Json | null
+          remarks?: string | null
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duplicate_leads_original_lead_id_fkey"
+            columns: ["original_lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       import_jobs: {
         Row: {
@@ -767,6 +817,7 @@ export type Database = {
         Args: { _job_id: string; _rows: Json }
         Returns: Json
       }
+      clean_10_digit_phone: { Args: { _phone: string }; Returns: string }
       close_stale_sessions: { Args: never; Returns: number }
       distribute_leads: { Args: { _per_caller: number }; Returns: Json }
       get_more_leads: { Args: never; Returns: number }
@@ -776,6 +827,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      ingest_wordpress_lead: {
+        Args: { _attribution?: Json; _lead: Json; _token: string }
+        Returns: Json
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_approved: { Args: { _user_id: string }; Returns: boolean }

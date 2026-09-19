@@ -26,16 +26,12 @@ function NavItems() {
   const collapsed = state === "collapsed";
 
   const closeSidebarOnMobile = () => {
-    if (isMobile) {
-      setOpenMobile(false);
-    }
+    setOpenMobile(false);
   };
 
   useEffect(() => {
-    if (isMobile) {
-      setOpenMobile(false);
-    }
-  }, [path, isMobile, setOpenMobile]);
+    setOpenMobile(false);
+  }, [path, setOpenMobile]);
 
   const items = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, show: true },
