@@ -16,6 +16,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedActivityRouteImport } from './routes/_authenticated/activity'
 import { Route as AuthenticatedArchiveRouteImport } from './routes/_authenticated/archive'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDuplicateLeadsRouteImport } from './routes/_authenticated/duplicate-leads'
 import { Route as AuthenticatedFollowupsRouteImport } from './routes/_authenticated/followups'
 import { Route as AuthenticatedImportRouteImport } from './routes/_authenticated/import'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
@@ -59,6 +60,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDuplicateLeadsRoute =
+  AuthenticatedDuplicateLeadsRouteImport.update({
+    id: '/duplicate-leads',
+    path: '/duplicate-leads',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFollowupsRoute = AuthenticatedFollowupsRouteImport.update({
   id: '/followups',
   path: '/followups',
@@ -109,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/activity': typeof AuthenticatedActivityRoute
   '/archive': typeof AuthenticatedArchiveRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/duplicate-leads': typeof AuthenticatedDuplicateLeadsRoute
   '/followups': typeof AuthenticatedFollowupsRoute
   '/import': typeof AuthenticatedImportRoute
   '/leads': typeof AuthenticatedLeadsRouteWithChildren
@@ -125,6 +133,7 @@ export interface FileRoutesByTo {
   '/activity': typeof AuthenticatedActivityRoute
   '/archive': typeof AuthenticatedArchiveRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/duplicate-leads': typeof AuthenticatedDuplicateLeadsRoute
   '/followups': typeof AuthenticatedFollowupsRoute
   '/import': typeof AuthenticatedImportRoute
   '/leads': typeof AuthenticatedLeadsRouteWithChildren
@@ -143,6 +152,7 @@ export interface FileRoutesById {
   '/_authenticated/activity': typeof AuthenticatedActivityRoute
   '/_authenticated/archive': typeof AuthenticatedArchiveRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/duplicate-leads': typeof AuthenticatedDuplicateLeadsRoute
   '/_authenticated/followups': typeof AuthenticatedFollowupsRoute
   '/_authenticated/import': typeof AuthenticatedImportRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRouteWithChildren
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/archive'
     | '/dashboard'
+    | '/duplicate-leads'
     | '/followups'
     | '/import'
     | '/leads'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/archive'
     | '/dashboard'
+    | '/duplicate-leads'
     | '/followups'
     | '/import'
     | '/leads'
@@ -194,6 +206,7 @@ export interface FileRouteTypes {
     | '/_authenticated/activity'
     | '/_authenticated/archive'
     | '/_authenticated/dashboard'
+    | '/_authenticated/duplicate-leads'
     | '/_authenticated/followups'
     | '/_authenticated/import'
     | '/_authenticated/leads'
@@ -260,6 +273,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/duplicate-leads': {
+      id: '/_authenticated/duplicate-leads'
+      path: '/duplicate-leads'
+      fullPath: '/duplicate-leads'
+      preLoaderRoute: typeof AuthenticatedDuplicateLeadsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/followups': {
@@ -336,6 +356,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivityRoute: typeof AuthenticatedActivityRoute
   AuthenticatedArchiveRoute: typeof AuthenticatedArchiveRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDuplicateLeadsRoute: typeof AuthenticatedDuplicateLeadsRoute
   AuthenticatedFollowupsRoute: typeof AuthenticatedFollowupsRoute
   AuthenticatedImportRoute: typeof AuthenticatedImportRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRouteWithChildren
@@ -349,6 +370,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivityRoute: AuthenticatedActivityRoute,
   AuthenticatedArchiveRoute: AuthenticatedArchiveRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDuplicateLeadsRoute: AuthenticatedDuplicateLeadsRoute,
   AuthenticatedFollowupsRoute: AuthenticatedFollowupsRoute,
   AuthenticatedImportRoute: AuthenticatedImportRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRouteWithChildren,

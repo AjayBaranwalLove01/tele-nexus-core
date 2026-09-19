@@ -9,10 +9,15 @@ interface LeadWebhookPayload {
     name?: string;
     email?: string;
     phone?: string;
+    city?: string;
     destination?: string;
     departure_date?: string;
     return_date?: string;
     travelers?: string | number;
+    adults?: string | number;
+    children?: string | number;
+    package?: string;
+    tent?: string;
     budget?: string;
     message?: string;
     remarks_formatted?: string;
@@ -35,6 +40,25 @@ interface LeadWebhookPayload {
   };
 }
 
+/**
+ * Normalizes any phone string to strict 10 digits without spaces, +91, 91, or leading 0
+ */
+export function clean10DigitPhone(raw?: string | null): string {
+  if (!raw) return "";
+  let digits = String(raw).replace(/\D/g, "");
+  // If 12 digits starting with 91 (India country code), strip 91
+  if (digits.length === 12 && digits.startsWith("91")) {
+    digits = digits.slice(2);
+  }
+  // Strip leading zeroes
+  digits = digits.replace(/^0+/, "");
+  // If longer than 10 digits, extract the rightmost 10 digits
+  if (digits.length > 10) {
+    digits = digits.slice(-10);
+  }
+  return digits;
+}
+
 function buildRemarksFromPayload(lead: any = {}, attribution: any = {}): string {
   if (lead.remarks_formatted && lead.remarks_formatted.trim().length > 0) {
     return lead.remarks_formatted;
@@ -43,12 +67,18 @@ function buildRemarksFromPayload(lead: any = {}, attribution: any = {}): string 
   const lines: string[] = [];
   lines.push("--- Travel Inquiry Form Details ---");
   if (lead.name) lines.push(`Name: ${lead.name}`);
+  if (lead.phone) lines.push(`Phone: ${clean10DigitPhone(lead.phone)}`);
   if (lead.email) lines.push(`Email: ${lead.email}`);
-  if (lead.phone) lines.push(`Phone: ${lead.phone}`);
-  if (lead.destination) lines.push(`Destination: ${lead.destination}`);
-  if (lead.departure_date) lines.push(`Departure Date: ${lead.departure_date}`);
+  if (lead.city) lines.push(`City: ${lead.city}`);
+  if (lead.check_in_date || lead.departure_date) lines.push(`Check In Date: ${lead.check_in_date || lead.departure_date}`);
+  if (lead.adults || lead.travelers) lines.push(`Add Adult: ${lead.adults || lead.travelers}`);
+  if (lead.children) lines.push(`Add Child 0-6 Years: ${lead.children}`);
+  if (lead.package) lines.push(`Select Package: ${lead.package}`);
+  if (lead.tent) lines.push(`Select Tent: ${lead.tent}`);
+  if (lead.destination && lead.destination !== lead.tent && lead.destination !== lead.package) {
+    lines.push(`Destination: ${lead.destination}`);
+  }
   if (lead.return_date) lines.push(`Return Date: ${lead.return_date}`);
-  if (lead.travelers) lines.push(`Travelers (Pax): ${lead.travelers}`);
   if (lead.budget) lines.push(`Budget: ${lead.budget}`);
   if (lead.message) lines.push(`Message: ${lead.message}`);
 
@@ -83,7 +113,7 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
       JSON.stringify({
         status: "ok",
         service: "TeleNexus Travel Leads Ingestion Webhook",
-        version: "1.1.0",
+        version: "1.2.0",
         timestamp: new Date().toISOString()
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
@@ -163,7 +193,13 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
     const lead = payload.lead || {};
     const attribution = payload.attribution || {};
 
-    if (!lead.name && !lead.phone && !lead.email) {
+    // Strictly clean phone number to 10 digits
+    const cleanPhone = clean10DigitPhone(lead.phone);
+    if (cleanPhone) {
+      lead.phone = cleanPhone;
+    }
+
+    if (!lead.name && !cleanPhone && !lead.email) {
       return new Response(
         JSON.stringify({ status: "error", message: "Lead must contain at least a name, phone, or email." }),
         { status: 422, headers: { "Content-Type": "application/json" } }
@@ -176,6 +212,56 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
     if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
       try {
         const { supabaseAdmin } = await import("../integrations/supabase/client.server");
+
+        // Check for duplicate phone number in leads
+        let existingLead: any = null;
+        if (cleanPhone && cleanPhone.length >= 7) {
+          const { data: found } = await (supabaseAdmin.from("leads") as any)
+            .select("id, name, phone_number, last_remark")
+            .or(`phone_number.eq.${cleanPhone},phone_number.ilike.%${cleanPhone}%`)
+            .order("id", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          existingLead = found;
+        }
+
+        if (existingLead) {
+          // INSERT INTO duplicate_leads TABLE
+          const { data: dupRecord } = await (supabaseAdmin.from("duplicate_leads") as any).insert({
+            original_lead_id: existingLead.id,
+            name: lead.name || "Website Traveler",
+            phone_number: cleanPhone,
+            email: lead.email || null,
+            city: lead.city || lead.destination || null,
+            source: payload.lead_source || "WordPress CF7",
+            remarks: travelRemarks,
+            raw_payload: payload,
+          }).select("id").maybeSingle();
+
+          try {
+            await (supabaseAdmin.from("lead_remarks") as any).insert({
+              lead_id: existingLead.id,
+              remark: `[Duplicate Lead Inquiry Received via WordPress]\n${travelRemarks}`,
+            });
+            await (supabaseAdmin.from("leads") as any).update({
+              last_remark: `[Duplicate Inquiry ${new Date().toLocaleDateString()}] ${travelRemarks.slice(0, 150)}...`,
+              updated_at: new Date().toISOString(),
+            }).eq("id", existingLead.id);
+          } catch (rErr) {}
+
+          return new Response(
+            JSON.stringify({
+              status: "success",
+              is_duplicate: true,
+              duplicate_id: dupRecord?.id,
+              original_lead_id: existingLead.id,
+              message: "Mobile number exists in CRM. Inquiry saved to Duplicate Leads table and linked to original lead timeline."
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } }
+          );
+        }
+
+        // NEW UNIQUE LEAD:
         const { data: defaultStatus } = await supabaseAdmin
           .from("lead_statuses")
           .select("id")
@@ -187,9 +273,9 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
           .from("leads")
           .insert({
             name: lead.name || "Website Traveler",
-            phone_number: lead.phone || null,
+            phone_number: cleanPhone || null,
             email: lead.email || null,
-            city: lead.destination || null,
+            city: lead.city || lead.destination || null,
             source: payload.lead_source || "WordPress CF7",
             lead_received_date: new Date().toISOString().slice(0, 10),
             last_remark: travelRemarks,
@@ -209,6 +295,7 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
           return new Response(
             JSON.stringify({
               status: "success",
+              is_duplicate: false,
               lead_id: insertedLead.id,
               message: "Travel lead captured and queued for telecallers."
             }),
@@ -227,6 +314,7 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
         _token: token,
         _lead: {
           ...lead,
+          phone: cleanPhone || lead.phone,
           remarks_formatted: travelRemarks
         },
         _attribution: {
@@ -237,13 +325,17 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
     );
 
     if (!rpcError && rpcResult && (rpcResult as any).success) {
+      const isDup = (rpcResult as any).is_duplicate || false;
       return new Response(
         JSON.stringify({
           status: "success",
+          is_duplicate: isDup,
           lead_id: (rpcResult as any).lead_id,
+          duplicate_id: (rpcResult as any).duplicate_id,
+          original_lead_id: (rpcResult as any).original_lead_id,
           message: (rpcResult as any).message || "Lead captured successfully in TeleNexus."
         }),
-        { status: 201, headers: { "Content-Type": "application/json" } }
+        { status: isDup ? 200 : 201, headers: { "Content-Type": "application/json" } }
       );
     }
 

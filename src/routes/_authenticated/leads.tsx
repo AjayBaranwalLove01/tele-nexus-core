@@ -15,7 +15,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Phone, MessageCircle, Search, Trash2, Download, Archive } from "lucide-react";
+import { Phone, MessageCircle, Search, Trash2, Download, Archive, Copy } from "lucide-react";
 import { ArchiveLeadsDialog } from "@/components/archive-leads-dialog";
 import { ArchiveByPhoneDialog } from "@/components/archive-by-phone-dialog";
 import * as XLSX from "xlsx";
@@ -246,6 +246,11 @@ function LeadsPage() {
           <p className="text-sm text-muted-foreground">Search, filter, and manage leads.</p>
         </div>
         <div className="flex gap-2">
+          <Button asChild variant="outline" className="border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100">
+            <Link to="/duplicate-leads">
+              <Copy className="h-4 w-4 mr-1.5" />Duplicate Leads
+            </Link>
+          </Button>
           {me?.isAdmin && (
             <Button variant="outline" onClick={exportLeads} disabled={exporting}>
               <Download className="h-4 w-4" />{exporting ? "Exporting…" : "Download Excel"}
