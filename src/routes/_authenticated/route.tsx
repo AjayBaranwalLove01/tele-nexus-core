@@ -5,6 +5,7 @@ import { useMyProfile } from "@/hooks/use-auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldAlert } from "lucide-react";
+import { clearAuthSession } from "@/integrations/supabase/auth-storage";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -33,6 +34,7 @@ function AuthenticatedLayout() {
           <Button
             variant="outline"
             onClick={async () => {
+              clearAuthSession();
               await supabase.auth.signOut();
               window.location.href = "/auth";
             }}

@@ -16,6 +16,7 @@ import { useMyProfile } from "@/hooks/use-auth";
 import { useActivityTracker } from "@/hooks/use-activity-tracker";
 import { endTracking } from "@/lib/activity/tracker";
 import { toast } from "sonner";
+import { clearAuthSession } from "@/integrations/supabase/auth-storage";
 
 
 function NavItems() {
@@ -70,6 +71,7 @@ function AppSidebar() {
     await endTracking();
     await queryClient.cancelQueries();
     queryClient.clear();
+    clearAuthSession();
     await supabase.auth.signOut();
     toast.success("Signed out");
     navigate({ to: "/auth", replace: true });

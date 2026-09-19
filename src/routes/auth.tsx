@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { getRememberMePreference, setRememberMeChoice } from "@/integrations/supabase/auth-storage";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -22,8 +24,12 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [rememberMe, setRememberMe] = useState(() => getRememberMePreference());
 
-
+  const handleRememberMeChange = (checked: boolean) => {
+    setRememberMe(checked);
+    setRememberMeChoice(checked);
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -34,6 +40,7 @@ function AuthPage() {
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setRememberMeChoice(rememberMe);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) return toast.error(error.message);
@@ -121,7 +128,10 @@ function AuthPage() {
                     <p className="text-sm text-muted-foreground">
                       Enter your account email and we'll send you a link to set a new password.
                     </p>
-                    <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+                    <div>
+                      <Label htmlFor="reset-email">Email</Label>
+                      <Input id="reset-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                    </div>
                     <Button className="w-full" disabled={loading}>
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Send reset link
                     </Button>
@@ -131,26 +141,58 @@ function AuthPage() {
                   </form>
                 ) : (
                   <form onSubmit={signIn} className="space-y-4 mt-4">
-                    <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-                    <div><Label>Password</Label><Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+                    <div>
+                      <Label htmlFor="signin-email">Email</Label>
+                      <Input id="signin-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label htmlFor="signin-password">Password</Label>
+                      <Input id="signin-password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                    </div>
+
+                    <div className="flex items-center justify-between pt-0.5">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="remember-me"
+                          checked={rememberMe}
+                          onCheckedChange={(checked) => handleRememberMeChange(checked === true)}
+                        />
+                        <Label
+                          htmlFor="remember-me"
+                          className="text-sm font-normal text-muted-foreground hover:text-foreground cursor-pointer select-none"
+                        >
+                          Remember me
+                        </Label>
+                      </div>
+                      <button
+                        type="button"
+                        className="text-xs text-muted-foreground hover:text-foreground hover:underline transition-colors"
+                        onClick={() => setShowForgot(true)}
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+
                     <Button className="w-full" disabled={loading}>
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sign in
                     </Button>
-                    <button
-                      type="button"
-                      className="w-full text-center text-xs text-muted-foreground hover:text-foreground"
-                      onClick={() => setShowForgot(true)}
-                    >
-                      Forgot your password?
-                    </button>
                   </form>
                 )}
               </TabsContent>
               <TabsContent value="signup">
                 <form onSubmit={signUp} className="space-y-4 mt-4">
-                  <div><Label>Full name</Label><Input required value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
-                  <div><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-                  <div><Label>Password</Label><Input type="password" minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+                  <div>
+                    <Label htmlFor="signup-name">Full name</Label>
+                    <Input id="signup-name" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label htmlFor="signup-email">Email</Label>
+                    <Input id="signup-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label htmlFor="signup-password">Password</Label>
+                    <Input id="signup-password" type="password" minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} />
+                  </div>
                   <Button className="w-full" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Create account
                   </Button>
