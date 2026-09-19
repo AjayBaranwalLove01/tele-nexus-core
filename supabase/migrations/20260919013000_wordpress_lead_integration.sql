@@ -1,13 +1,12 @@
-﻿-- Add WordPress Integration Token to crm_settings
+﻿-- 1. Add WordPress Integration Token to crm_settings
 ALTER TABLE public.crm_settings 
 ADD COLUMN IF NOT EXISTS wp_webhook_token TEXT DEFAULT ('tnx_live_' || md5(random()::text || clock_timestamp()::text));
 
--- Ensure existing settings row has a token
 UPDATE public.crm_settings 
 SET wp_webhook_token = ('tnx_live_' || md5(random()::text || clock_timestamp()::text))
 WHERE wp_webhook_token IS NULL;
 
--- Function to safely ingest leads from WordPress / Contact Form 7
+-- 2. Create the secure lead ingestion function with full "Field Name: Field Value" remarks
 CREATE OR REPLACE FUNCTION public.ingest_wordpress_lead(
   _token TEXT,
   _lead JSONB,
@@ -28,69 +27,65 @@ DECLARE
   v_destination TEXT;
   v_source TEXT;
   v_remark TEXT;
-  v_dep_date TEXT;
-  v_pax TEXT;
-  v_budget TEXT;
-  v_notes TEXT;
-  v_page_url TEXT;
-  v_utm TEXT;
+  v_key TEXT;
+  v_val TEXT;
 BEGIN
-  -- 1. Validate Token against crm_settings
+  -- Validate Token
   SELECT wp_webhook_token INTO v_expected_token FROM public.crm_settings LIMIT 1;
-  
   IF v_expected_token IS NULL OR TRIM(_token) != TRIM(v_expected_token) THEN
-    -- Also allow hardcoded dev fallback if matching
     IF _token NOT LIKE 'tnx_live_%' THEN
       RETURN jsonb_build_object('success', false, 'message', 'Invalid or unauthorized unique integration code');
     END IF;
   END IF;
 
-  -- 2. Extract Lead Info
+  -- Extract Core Lead Info
   v_name        := NULLIF(TRIM(_lead->>'name'), '');
   v_phone       := NULLIF(TRIM(_lead->>'phone'), '');
   v_email       := NULLIF(TRIM(_lead->>'email'), '');
   v_destination := NULLIF(TRIM(_lead->>'destination'), '');
   v_source      := COALESCE(NULLIF(TRIM(_attribution->>'lead_source'), ''), 'WordPress CF7');
-  
-  v_dep_date    := NULLIF(TRIM(_lead->>'departure_date'), '');
-  v_pax         := NULLIF(TRIM(_lead->>'travelers'), '');
-  v_budget      := NULLIF(TRIM(_lead->>'budget'), '');
-  v_notes       := NULLIF(TRIM(_lead->>'message'), '');
-  v_page_url    := NULLIF(TRIM(_attribution->>'page_url'), '');
-  v_utm         := NULLIF(TRIM(_attribution->>'utm_source'), '');
 
   IF v_name IS NULL AND v_phone IS NULL AND v_email IS NULL THEN
     RETURN jsonb_build_object('success', false, 'message', 'Lead must include at least name, phone, or email');
   END IF;
 
-  -- 3. Build rich formatted remark with travel context
-  v_remark := 'Travel Inquiry Details:';
-  IF v_destination IS NOT NULL THEN
-    v_remark := v_remark || E'\nDestination: ' || v_destination;
-  END IF;
-  IF v_dep_date IS NOT NULL THEN
-    v_remark := v_remark || E'\nDeparture Date: ' || v_dep_date;
-  END IF;
-  IF v_pax IS NOT NULL THEN
-    v_remark := v_remark || E'\nTravelers (Pax): ' || v_pax;
-  END IF;
-  IF v_budget IS NOT NULL THEN
-    v_remark := v_remark || E'\nBudget: ' || v_budget;
-  END IF;
-  IF v_notes IS NOT NULL THEN
-    v_remark := v_remark || E'\nNotes: ' || v_notes;
-  END IF;
-  IF v_page_url IS NOT NULL THEN
-    v_remark := v_remark || E'\nPage: ' || v_page_url;
-  END IF;
-  IF v_utm IS NOT NULL THEN
-    v_remark := v_remark || E'\nCampaign Source: ' || v_utm;
+  -- Use pre-formatted remarks if sent by WordPress plugin, else construct Field: Value
+  IF (_lead->>'remarks_formatted') IS NOT NULL AND LENGTH(TRIM(_lead->>'remarks_formatted')) > 0 THEN
+    v_remark := _lead->>'remarks_formatted';
+  ELSE
+    v_remark := '--- Travel Inquiry Details ---';
+    IF v_name IS NOT NULL THEN v_remark := v_remark || E'\nName: ' || v_name; END IF;
+    IF v_email IS NOT NULL THEN v_remark := v_remark || E'\nEmail: ' || v_email; END IF;
+    IF v_phone IS NOT NULL THEN v_remark := v_remark || E'\nPhone: ' || v_phone; END IF;
+    IF v_destination IS NOT NULL THEN v_remark := v_remark || E'\nDestination: ' || v_destination; END IF;
+    IF (_lead->>'departure_date') IS NOT NULL THEN v_remark := v_remark || E'\nDeparture Date: ' || (_lead->>'departure_date'); END IF;
+    IF (_lead->>'return_date') IS NOT NULL THEN v_remark := v_remark || E'\nReturn Date: ' || (_lead->>'return_date'); END IF;
+    IF (_lead->>'travelers') IS NOT NULL THEN v_remark := v_remark || E'\nTravelers (Pax): ' || (_lead->>'travelers'); END IF;
+    IF (_lead->>'budget') IS NOT NULL THEN v_remark := v_remark || E'\nBudget: ' || (_lead->>'budget'); END IF;
+    IF (_lead->>'message') IS NOT NULL THEN v_remark := v_remark || E'\nMessage: ' || (_lead->>'message'); END IF;
+
+    -- Append any custom fields dynamically
+    IF (_lead->'custom_fields') IS NOT NULL AND jsonb_typeof(_lead->'custom_fields') = 'object' THEN
+      v_remark := v_remark || E'\n\n--- Additional Custom Fields ---';
+      FOR v_key, v_val IN SELECT * FROM jsonb_each_text(_lead->'custom_fields') LOOP
+        IF v_val IS NOT NULL AND v_val != '' THEN
+          v_remark := v_remark || E'\n' || initcap(replace(replace(v_key, '-', ' '), '_', ' ')) || ': ' || v_val;
+        END IF;
+      END LOOP;
+    END IF;
+
+    -- Append page and tracking details
+    v_remark := v_remark || E'\n\n--- Page & Tracking Info ---';
+    IF (_attribution->>'page_url') IS NOT NULL THEN v_remark := v_remark || E'\nPage URL: ' || (_attribution->>'page_url'); END IF;
+    IF (_attribution->>'form_title') IS NOT NULL THEN v_remark := v_remark || E'\nForm Title: ' || (_attribution->>'form_title'); END IF;
+    IF (_attribution->>'utm_source') IS NOT NULL THEN v_remark := v_remark || E'\nCampaign Source: ' || (_attribution->>'utm_source'); END IF;
+    IF (_attribution->>'submitted_at') IS NOT NULL THEN v_remark := v_remark || E'\nSubmitted At: ' || (_attribution->>'submitted_at'); END IF;
   END IF;
 
-  -- 4. Get default new status
+  -- Default status
   SELECT id INTO v_status_id FROM public.lead_statuses WHERE is_default = true LIMIT 1;
 
-  -- 5. Insert or update lead
+  -- Insert Lead
   INSERT INTO public.leads (
     name,
     phone_number,
@@ -116,7 +111,22 @@ BEGIN
   )
   RETURNING id INTO v_lead_id;
 
-  -- 6. Record activity history if table exists
+  -- Insert into lead_remarks table for Activity Timeline display
+  BEGIN
+    INSERT INTO public.lead_remarks (
+      lead_id,
+      remark,
+      created_at
+    ) VALUES (
+      v_lead_id,
+      v_remark,
+      now()
+    );
+  EXCEPTION WHEN OTHERS THEN
+    NULL;
+  END;
+
+  -- Insert into lead_activity_history
   BEGIN
     INSERT INTO public.lead_activity_history (
       lead_id,
@@ -132,17 +142,15 @@ BEGIN
       jsonb_build_object('lead', _lead, 'attribution', _attribution)
     );
   EXCEPTION WHEN OTHERS THEN
-    -- Ignore history logging failure if schema differs
     NULL;
   END;
 
   RETURN jsonb_build_object(
     'success', true,
     'lead_id', v_lead_id,
-    'message', 'Travel lead captured successfully in TeleNexus'
+    'message', 'Travel lead captured successfully with full remarks in TeleNexus'
   );
 END;
 $$;
 
--- Allow anon and authenticated roles to invoke the function with a valid token
 GRANT EXECUTE ON FUNCTION public.ingest_wordpress_lead(TEXT, JSONB, JSONB) TO anon, authenticated, service_role;
