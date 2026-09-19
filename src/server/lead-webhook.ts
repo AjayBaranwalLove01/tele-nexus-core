@@ -213,6 +213,16 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
       try {
         const { supabaseAdmin } = await import("../integrations/supabase/client.server");
 
+        // Remarks require an author; attribute website inquiries to the first admin
+        const { data: adminRole } = await (supabaseAdmin.from("user_roles") as any)
+          .select("user_id")
+          .eq("role", "admin")
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        const systemUserId = adminRole?.user_id ?? null;
+
+
         // Check for duplicate phone number in leads
         let existingLead: any = null;
         if (cleanPhone && cleanPhone.length >= 7) {
@@ -239,10 +249,13 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
           }).select("id").maybeSingle();
 
           try {
-            await (supabaseAdmin.from("lead_remarks") as any).insert({
-              lead_id: existingLead.id,
-              remark: `[Duplicate Lead Inquiry Received via WordPress]\n${travelRemarks}`,
-            });
+            if (systemUserId) {
+              await (supabaseAdmin.from("lead_remarks") as any).insert({
+                lead_id: existingLead.id,
+                user_id: systemUserId,
+                remark: `[Duplicate Lead Inquiry Received via Website Form]\n${travelRemarks}`,
+              });
+            }
             await (supabaseAdmin.from("leads") as any).update({
               last_remark: `[Duplicate Inquiry ${new Date().toLocaleDateString()}] ${travelRemarks.slice(0, 150)}...`,
               updated_at: new Date().toISOString(),
@@ -286,10 +299,13 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
 
         if (!insertError && insertedLead) {
           try {
-            await (supabaseAdmin.from("lead_remarks") as any).insert({
-              lead_id: insertedLead.id,
-              remark: travelRemarks,
-            });
+            if (systemUserId) {
+              await (supabaseAdmin.from("lead_remarks") as any).insert({
+                lead_id: insertedLead.id,
+                user_id: systemUserId,
+                remark: `[Website Form Inquiry]\n${travelRemarks}`,
+              });
+            }
           } catch (rErr) {}
 
           return new Response(
