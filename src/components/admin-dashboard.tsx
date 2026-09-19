@@ -122,7 +122,7 @@ export function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <Link to="/leads" search={{ scope: "all" }} aria-label="View all leads"><StatCard k="total" label="Total Leads" value={data.total.toLocaleString()} /></Link>
+        <Link to="/leads" aria-label="View all leads"><StatCard k="total" label="Total Leads" value={data.total.toLocaleString()} /></Link>
         <Link to="/leads" search={{ scope: "assigned" }} aria-label="View assigned leads"><StatCard k="assigned" label="Assigned" value={data.assigned.toLocaleString()} /></Link>
         <Link to="/leads" search={{ scope: "unassigned" }} aria-label="View unassigned leads"><StatCard k="unassigned" label="Unassigned Pool" value={data.unassigned.toLocaleString()} /></Link>
         <Link to="/telecallers" aria-label="View telecallers"><StatCard k="telecallers" label="Telecallers" value={data.telecallers} /></Link>
