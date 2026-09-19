@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   LayoutDashboard, Users, Upload, ListTodo, CalendarClock, Copy,
@@ -22,8 +22,20 @@ function NavItems() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { data } = useMyProfile();
   const isAdmin = data?.isAdmin;
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
+
+  const closeSidebarOnMobile = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [path, isMobile, setOpenMobile]);
 
   const items = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, show: true },
@@ -45,7 +57,7 @@ function NavItems() {
       {items.filter((i) => i.show).map((i) => (
         <SidebarMenuItem key={i.to}>
           <SidebarMenuButton asChild isActive={path === i.to || path.startsWith(i.to + "/")}>
-            <Link to={i.to}>
+            <Link to={i.to} onClick={closeSidebarOnMobile}>
               <i.icon className="h-4 w-4" />
               {!collapsed && <span>{i.label}</span>}
             </Link>
@@ -60,10 +72,13 @@ function AppSidebar() {
   const { data } = useMyProfile();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
 
   const signOut = async () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
     await endTracking();
     await queryClient.cancelQueries();
     queryClient.clear();
