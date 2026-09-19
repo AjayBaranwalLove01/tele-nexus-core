@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   LayoutDashboard, Users, Upload, ListTodo, CalendarClock, Copy,
@@ -22,16 +22,8 @@ function NavItems() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { data } = useMyProfile();
   const isAdmin = data?.isAdmin;
-  const { state, isMobile, setOpenMobile } = useSidebar();
+  const { state } = useSidebar();
   const collapsed = state === "collapsed";
-
-  const closeSidebarOnMobile = () => {
-    setOpenMobile(false);
-  };
-
-  useEffect(() => {
-    setOpenMobile(false);
-  }, [path, setOpenMobile]);
 
   const items = [
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, show: true },
@@ -53,7 +45,7 @@ function NavItems() {
       {items.filter((i) => i.show).map((i) => (
         <SidebarMenuItem key={i.to}>
           <SidebarMenuButton asChild isActive={path === i.to || path.startsWith(i.to + "/")}>
-            <Link to={i.to} onClick={closeSidebarOnMobile}>
+            <Link to={i.to}>
               <i.icon className="h-4 w-4" />
               {!collapsed && <span>{i.label}</span>}
             </Link>

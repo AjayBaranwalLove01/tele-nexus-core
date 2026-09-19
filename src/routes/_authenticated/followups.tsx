@@ -9,12 +9,21 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+type FollowupSearch = { bucket?: "overdue" | "today" | "tomorrow" | "upcoming" };
+
 export const Route = createFileRoute("/_authenticated/followups")({
+  validateSearch: (search: Record<string, unknown>): FollowupSearch => {
+    if (search.bucket === "overdue" || search.bucket === "today" || search.bucket === "tomorrow" || search.bucket === "upcoming") {
+      return { bucket: search.bucket };
+    }
+    return {};
+  },
   head: () => ({ meta: [{ title: "Follow-ups — Oxo Lead Manager" }] }),
   component: FollowupsPage,
 });
 
 function FollowupsPage() {
+  const { bucket } = Route.useSearch();
   const { data: me } = useMyProfile();
   const { data: telecallers } = useTelecallers();
   const [assignedTo, setAssignedTo] = useState<string>("all");
@@ -86,10 +95,10 @@ function FollowupsPage() {
           </div>
         )}
       </div>
-      <Section title="Overdue" items={buckets.overdue} accent="text-destructive"/>
-      <Section title="Today" items={buckets.today} accent="text-warning"/>
-      <Section title="Tomorrow" items={buckets.tomorrow} accent="text-info"/>
-      <Section title="Upcoming" items={buckets.later}/>
+      {(!bucket || bucket === "overdue") && <Section title="Overdue" items={buckets.overdue} accent="text-destructive"/>}
+      {(!bucket || bucket === "today") && <Section title="Today" items={buckets.today} accent="text-warning"/>}
+      {(!bucket || bucket === "tomorrow") && <Section title="Tomorrow" items={buckets.tomorrow} accent="text-info"/>}
+      {(!bucket || bucket === "upcoming") && <Section title="Upcoming" items={buckets.later}/>} 
     </div>
   );
 }

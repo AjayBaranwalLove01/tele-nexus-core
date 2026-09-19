@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -8,16 +8,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusDistribution } from "@/components/status-distribution";
 import { useTelecallers } from "@/hooks/use-meta";
+import { Link } from "@tanstack/react-router";
+import { useStatuses, useTemperatures } from "@/hooks/use-meta";
 
 const STAT_ICONS: Record<string, any> = {
   total: Database, assigned: UserCheck, unassigned: Users, telecallers: Users,
   converted: TrendingUp, hot: Flame, overdue: CalendarX, today: CalendarClock, tomorrow: CalendarCheck,
 };
 
-function StatCard({ k, label, value }: { k: string; label: string; value: number | string }) {
+function StatCard({ k, label, value, children }: { k: string; label: string; value: number | string; children?: ReactNode }) {
   const Icon = STAT_ICONS[k] ?? Database;
   return (
-    <Card className="p-4">
+    <Card className="p-4 transition-colors hover:bg-accent focus-within:ring-2 focus-within:ring-ring">
+      {children}
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted-foreground">{label}</div>
         <Icon className="h-4 w-4 text-muted-foreground" />
@@ -30,6 +33,10 @@ function StatCard({ k, label, value }: { k: string; label: string; value: number
 export function AdminDashboard() {
   const [assignee, setAssignee] = useState<string>("all");
   const { data: telecallers = [] } = useTelecallers();
+  const { data: statuses = [] } = useStatuses();
+  const { data: temperatures = [] } = useTemperatures();
+  const convertedStatusId = statuses.find((status) => status.name === "Converted")?.id;
+  const hotTemperatureId = temperatures.find((temperature) => temperature.name === "Hot")?.id;
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-dashboard"],
@@ -115,14 +122,14 @@ export function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-        <StatCard k="total" label="Total Leads" value={data.total.toLocaleString()} />
-        <StatCard k="assigned" label="Assigned" value={data.assigned.toLocaleString()} />
-        <StatCard k="unassigned" label="Unassigned Pool" value={data.unassigned.toLocaleString()} />
-        <StatCard k="telecallers" label="Telecallers" value={data.telecallers} />
-        <StatCard k="converted" label="Converted" value={data.converted} />
-        <StatCard k="hot" label="Hot Leads" value={data.hot} />
-        <StatCard k="overdue" label="Overdue Follow-ups" value={data.overdue} />
-        <StatCard k="today" label="Today's Follow-ups" value={data.todayFU} />
+        <Link to="/leads" aria-label="View all leads"><StatCard k="total" label="Total Leads" value={data.total.toLocaleString()} /></Link>
+        <Link to="/leads" search={{ scope: "assigned" }} aria-label="View assigned leads"><StatCard k="assigned" label="Assigned" value={data.assigned.toLocaleString()} /></Link>
+        <Link to="/leads" search={{ scope: "unassigned" }} aria-label="View unassigned leads"><StatCard k="unassigned" label="Unassigned Pool" value={data.unassigned.toLocaleString()} /></Link>
+        <Link to="/telecallers" aria-label="View telecallers"><StatCard k="telecallers" label="Telecallers" value={data.telecallers} /></Link>
+        <Link to="/leads" search={{ statusId: convertedStatusId }} aria-label="View converted leads"><StatCard k="converted" label="Converted" value={data.converted} /></Link>
+        <Link to="/leads" search={{ temperatureId: hotTemperatureId }} aria-label="View hot leads"><StatCard k="hot" label="Hot Leads" value={data.hot} /></Link>
+        <Link to="/followups" search={{ bucket: "overdue" }} aria-label="View overdue follow-ups"><StatCard k="overdue" label="Overdue Follow-ups" value={data.overdue} /></Link>
+        <Link to="/followups" search={{ bucket: "today" }} aria-label="View today's follow-ups"><StatCard k="today" label="Today's Follow-ups" value={data.todayFU} /></Link>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
