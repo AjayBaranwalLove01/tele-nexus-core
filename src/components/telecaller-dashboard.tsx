@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { StatusDistribution } from "@/components/status-distribution";
+import { Link } from "@tanstack/react-router";
+import { useTemperatures } from "@/hooks/use-meta";
 
 type LeadRowT = {
   id: number;
@@ -29,6 +31,8 @@ type LeadRowT = {
 
 export function TelecallerDashboard() {
   const qc = useQueryClient();
+  const { data: temperatures = [] } = useTemperatures();
+  const hotTemperatureId = temperatures.find((temperature) => temperature.name === "Hot")?.id;
 
   const { data: leads, isLoading } = useQuery({
     queryKey: ["my-leads"],
@@ -175,22 +179,22 @@ export function TelecallerDashboard() {
 
 
       <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
-        <Card className="p-4">
+        <Link to="/leads" aria-label="View remaining leads"><Card className="p-4 transition-colors hover:bg-accent">
           <div className="flex items-center justify-between text-sm text-muted-foreground">Remaining<CheckCircle2 className="h-4 w-4"/></div>
           <div className="mt-2 text-2xl font-semibold">{stats.remaining}</div>
-        </Card>
-        <Card className="p-4">
+        </Card></Link>
+        <Link to="/followups" search={{ bucket: "overdue" }} aria-label="View overdue follow-ups"><Card className="p-4 transition-colors hover:bg-accent">
           <div className="flex items-center justify-between text-sm text-muted-foreground">Overdue<CalendarX className="h-4 w-4 text-destructive"/></div>
           <div className="mt-2 text-2xl font-semibold">{stats.overdue}</div>
-        </Card>
-        <Card className="p-4">
+        </Card></Link>
+        <Link to="/followups" search={{ bucket: "today" }} aria-label="View today's follow-ups"><Card className="p-4 transition-colors hover:bg-accent">
           <div className="flex items-center justify-between text-sm text-muted-foreground">Today<CalendarClock className="h-4 w-4 text-warning"/></div>
           <div className="mt-2 text-2xl font-semibold">{stats.todayCount}</div>
-        </Card>
-        <Card className="p-4">
+        </Card></Link>
+        <Link to="/leads" search={{ temperatureId: hotTemperatureId }} aria-label="View hot leads"><Card className="p-4 transition-colors hover:bg-accent">
           <div className="flex items-center justify-between text-sm text-muted-foreground">Hot<Flame className="h-4 w-4 text-hot"/></div>
           <div className="mt-2 text-2xl font-semibold">{stats.hot}</div>
-        </Card>
+        </Card></Link>
       </div>
 
       <StatusDistribution

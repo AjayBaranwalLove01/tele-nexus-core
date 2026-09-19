@@ -28,18 +28,24 @@ import { AssignSelectedDialog } from "@/components/assign-selected-dialog";
 import { invalidateLeadViews } from "@/lib/invalidate-leads";
 
 export const Route = createFileRoute("/_authenticated/leads")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    scope: search.scope === "assigned" || search.scope === "unassigned" || search.scope === "mine" ? search.scope : undefined,
+    statusId: typeof search.statusId === "string" ? search.statusId : undefined,
+    temperatureId: typeof search.temperatureId === "string" ? search.temperatureId : undefined,
+  }),
   head: () => ({ meta: [{ title: "Leads — Oxo Lead Manager" }] }),
   component: LeadsPage,
 });
 
 function LeadsPage() {
+  const routeSearch = Route.useSearch();
   const { data: me } = useMyProfile();
   const { data: statuses } = useStatuses();
   const { data: temps } = useTemperatures();
   const [search, setSearch] = useState("");
-  const [statusId, setStatusId] = useState<string>("all");
-  const [tempId, setTempId] = useState<string>("all");
-  const [scope, setScope] = useState<string>("all");
+  const [statusId, setStatusId] = useState<string>(routeSearch.statusId ?? "all");
+  const [tempId, setTempId] = useState<string>(routeSearch.temperatureId ?? "all");
+  const [scope, setScope] = useState<string>(routeSearch.scope ?? "all");
   const [assignedTo, setAssignedTo] = useState<string>("all");
   const [callDateFilter, setCallDateFilter] = useState<string>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
@@ -76,6 +82,7 @@ function LeadsPage() {
       if (tempId !== "all") q = q.eq("temperature_id", tempId);
       if (assignedTo !== "all") q = q.eq("assigned_to", assignedTo);
       if (scope === "mine" && me?.profile?.id) q = q.eq("assigned_to", me.profile.id);
+      if (scope === "assigned") q = q.not("assigned_to", "is", null);
       if (scope === "unassigned") q = q.is("assigned_to", null);
       if (search.trim()) q = q.or(`name.ilike.%${search}%,phone_number.ilike.%${search}%`);
       if (sourceFilter !== "all") q = q.eq("source", sourceFilter);
@@ -136,6 +143,7 @@ function LeadsPage() {
         if (tempId !== "all") q = q.eq("temperature_id", tempId);
         if (assignedTo !== "all") q = q.eq("assigned_to", assignedTo);
         if (scope === "mine" && me?.profile?.id) q = q.eq("assigned_to", me.profile.id);
+        if (scope === "assigned") q = q.not("assigned_to", "is", null);
         if (scope === "unassigned") q = q.is("assigned_to", null);
         if (search.trim()) q = q.or(`name.ilike.%${search}%,phone_number.ilike.%${search}%`);
         if (sourceFilter !== "all") q = q.eq("source", sourceFilter);
@@ -323,6 +331,7 @@ function LeadsPage() {
             <SelectTrigger className="w-[160px]"><SelectValue/></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All leads</SelectItem>
+              <SelectItem value="assigned">Assigned leads</SelectItem>
               <SelectItem value="unassigned">Unassigned pool</SelectItem>
               <SelectItem value="mine">Assigned to me</SelectItem>
             </SelectContent>
