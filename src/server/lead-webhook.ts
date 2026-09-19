@@ -213,6 +213,16 @@ export async function handleLeadWebhook(request: Request): Promise<Response> {
       try {
         const { supabaseAdmin } = await import("../integrations/supabase/client.server");
 
+        // Remarks require an author; attribute website inquiries to the first admin
+        const { data: adminRole } = await (supabaseAdmin.from("user_roles") as any)
+          .select("user_id")
+          .eq("role", "admin")
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        const systemUserId = adminRole?.user_id ?? null;
+
+
         // Check for duplicate phone number in leads
         let existingLead: any = null;
         if (cleanPhone && cleanPhone.length >= 7) {
