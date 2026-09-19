@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -16,7 +16,7 @@ const STAT_ICONS: Record<string, any> = {
   converted: TrendingUp, hot: Flame, overdue: CalendarX, today: CalendarClock, tomorrow: CalendarCheck,
 };
 
-function StatCard({ k, label, value, children }: { k: string; label: string; value: number | string; children?: React.ReactNode }) {
+function StatCard({ k, label, value, children }: { k: string; label: string; value: number | string; children?: ReactNode }) {
   const Icon = STAT_ICONS[k] ?? Database;
   return (
     <Card className="p-4 transition-colors hover:bg-accent focus-within:ring-2 focus-within:ring-ring">

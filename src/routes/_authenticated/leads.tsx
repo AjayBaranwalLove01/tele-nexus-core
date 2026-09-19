@@ -27,12 +27,20 @@ import { AddLeadDialog } from "@/components/add-lead-dialog";
 import { AssignSelectedDialog } from "@/components/assign-selected-dialog";
 import { invalidateLeadViews } from "@/lib/invalidate-leads";
 
+type LeadsSearch = {
+  scope?: "assigned" | "unassigned" | "mine";
+  statusId?: string;
+  temperatureId?: string;
+};
+
 export const Route = createFileRoute("/_authenticated/leads")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    scope: search.scope === "assigned" || search.scope === "unassigned" || search.scope === "mine" ? search.scope : undefined,
-    statusId: typeof search.statusId === "string" ? search.statusId : undefined,
-    temperatureId: typeof search.temperatureId === "string" ? search.temperatureId : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): LeadsSearch => {
+    const parsed: LeadsSearch = {};
+    if (search.scope === "assigned" || search.scope === "unassigned" || search.scope === "mine") parsed.scope = search.scope;
+    if (typeof search.statusId === "string") parsed.statusId = search.statusId;
+    if (typeof search.temperatureId === "string") parsed.temperatureId = search.temperatureId;
+    return parsed;
+  },
   head: () => ({ meta: [{ title: "Leads — Oxo Lead Manager" }] }),
   component: LeadsPage,
 });

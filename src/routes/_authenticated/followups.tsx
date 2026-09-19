@@ -9,10 +9,15 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+type FollowupSearch = { bucket?: "overdue" | "today" | "tomorrow" | "upcoming" };
+
 export const Route = createFileRoute("/_authenticated/followups")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    bucket: search.bucket === "overdue" || search.bucket === "today" || search.bucket === "tomorrow" || search.bucket === "upcoming" ? search.bucket : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): FollowupSearch => {
+    if (search.bucket === "overdue" || search.bucket === "today" || search.bucket === "tomorrow" || search.bucket === "upcoming") {
+      return { bucket: search.bucket };
+    }
+    return {};
+  },
   head: () => ({ meta: [{ title: "Follow-ups — Oxo Lead Manager" }] }),
   component: FollowupsPage,
 });
